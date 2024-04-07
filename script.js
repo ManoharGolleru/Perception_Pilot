@@ -12,14 +12,18 @@ let changeInterval = 5000; // Default interval
 let intervalId;
 
 function showImage() {
-    carouselContainer.innerHTML = ''; // Clear previous image
+    // Clear all images
+    carouselContainer.innerHTML = '';
+    // Create a new img element for the current image
     const img = document.createElement('img');
     img.src = images[currentIndex];
     img.alt = `Image ${currentIndex}`;
+    img.classList.add('active'); // Make the image visible
     carouselContainer.appendChild(img);
-
-    imageNameElement.textContent = `Image ${currentIndex + 1}`; // Example: "Image 1"
+    imageNameElement.textContent = `Image ${currentIndex + 1}`;
 }
+
+
 
 function changeImage() {
     currentIndex = (currentIndex + 1) % images.length;
