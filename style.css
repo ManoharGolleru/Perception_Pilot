@@ -21,3 +21,17 @@ body {
 .carousel-images img.active {
     display: block; /* Only show the active image */
 }
+
+.image-info {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#image-name {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+#timer {
+    font-size: 18px;
+}
