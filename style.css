@@ -35,3 +35,35 @@ body {
 #timer {
     font-size: 18px;
 }
+
+
+.settings {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.settings label {
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.settings input {
+    font-size: 16px;
+    padding: 5px;
+    width: 60px; /* Adjust as needed */
+}
+
+.settings button {
+    font-size: 16px;
+    padding: 5px 10px;
+    margin-left: 10px;
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    border: none;
+    cursor: pointer;
+}
+
+.settings button:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
