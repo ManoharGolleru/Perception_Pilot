@@ -1,0 +1,23 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.carousel {
+    width: 80%;
+    max-width: 600px;
+    overflow: hidden;
+    position: relative;
+}
+
+.carousel-images img {
+    width: 100%;
+    display: none; /* Hide images initially */
+}
+
+.carousel-images img.active {
+    display: block; /* Only show the active image */
+}
