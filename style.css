@@ -8,7 +8,7 @@ body {
 
 .carousel {
     width: 100%; /* Set to the desired width of the image container */
-    max-width: 600px; /* Adjust based on your preference */
+    max-width: 500px; /* Adjust based on your preference */
     height: 400px; /* Set to the desired height of the image container */
     overflow: hidden; /* Hide parts of the image that overflow the container */
     margin: auto; /* Center the container if it's smaller than the carousel width */
