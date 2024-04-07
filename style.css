@@ -15,48 +15,24 @@ body {
 
 .carousel-images img {
     width: 100%;
-    display: none; /* Hide images initially */
+    display: block; /* Ensure images are displayed */
 }
 
-.carousel-images img.active {
-    display: block; /* Only show the active image */
-}
-
-.image-info {
+.image-info, .settings {
     text-align: center;
     margin-top: 20px;
 }
 
-#image-name {
-    font-size: 24px;
-    margin-bottom: 10px;
+.image-info h2, .image-info p, .settings label, .settings input, .settings button {
+    margin: 5px 0; /* Add some spacing */
 }
 
-#timer {
-    font-size: 18px;
-}
-
-
-.settings {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.settings label {
-    margin-right: 10px;
-    font-size: 16px;
-}
-
-.settings input {
+.settings input, .settings button {
     font-size: 16px;
     padding: 5px;
-    width: 60px; /* Adjust as needed */
 }
 
 .settings button {
-    font-size: 16px;
-    padding: 5px 10px;
-    margin-left: 10px;
     background-color: #4CAF50; /* Green background */
     color: white; /* White text */
     border: none;
@@ -66,4 +42,3 @@ body {
 .settings button:hover {
     background-color: #45a049; /* Darker green on hover */
 }
-
