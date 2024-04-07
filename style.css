@@ -7,16 +7,20 @@ body {
 }
 
 .carousel {
-    width: 80%;
-    max-width: 600px;
-    overflow: hidden;
-    position: relative;
+    width: 100%; /* Set to the desired width of the image container */
+    max-width: 600px; /* Adjust based on your preference */
+    height: 400px; /* Set to the desired height of the image container */
+    overflow: hidden; /* Hide parts of the image that overflow the container */
+    margin: auto; /* Center the container if it's smaller than the carousel width */
 }
 
 .carousel-images img {
-    width: 100%;
-    display: block; /* Ensure images are displayed */
+    width: 100%; /* Make images fill the container width */
+    height: 100%; /* Make images fill the container height */
+    object-fit: cover; /* Cover the container with the image without distorting aspect ratio */
+    display: block; /* Hide images initially */
 }
+
 
 .image-info, .settings {
     text-align: center;
