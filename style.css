@@ -6,7 +6,7 @@ body {
     margin: 0;
 }
 
-.carousel {
+.carousel-images {
     width: 100%; /* Set to the desired width of the image container */
     max-width: 600px; /* Adjust based on your preference */
     height: 400px; /* Set to the desired height of the image container */
