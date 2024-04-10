@@ -7,22 +7,25 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="session-settings">
+        <input type="text" id="name" placeholder="Enter Name">
+        <div class="settings">
+            <label for="interval">Interval (s):</label>
+            <input type="number" id="interval" value="5" min="1">
+        </div>
+        <button id="start-session">Start Session</button>
+    </div>
+
     <div class="carousel">
-       
+        <div class="carousel-images" id="carousel-images">
+            <!-- Images will be loaded here by JavaScript -->
+        </div>
         <div class="image-info">
             <h2 id="image-name">Image Name</h2>
             <p id="timer">00:00</p>
         </div>
-        <div class="settings">
-            <label for="interval">Change interval (seconds):</label>
-            <input type="number" id="interval" value="5" min="1">
-            <button id="set-interval">Set Interval</button>
-        </div>
-
-         <div class="carousel-images" id="carousel-images">
-            <!-- Images will be loaded here by JavaScript -->
-        </div>
     </div>
+    
     <script src="script.js"></script>
 </body>
 </html>
