@@ -34,7 +34,7 @@ body {
     flex-direction: column;
     align-items: center;
     max-width: 600px;
-    height: 900px;
+    height: 600px;
     margin: 20px auto;
     overflow: hidden;
 }
