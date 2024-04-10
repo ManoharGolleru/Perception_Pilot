@@ -8,15 +8,12 @@ let intervalId;
 
 function showImage() {
     const carouselContainer = document.getElementById('carousel-images');
-    const imageNameElement = document.getElementById('image-name');
     carouselContainer.innerHTML = ''; // Clear the container
-
     const img = document.createElement('img');
     img.src = images[currentIndex];
     img.alt = `Image ${currentIndex}`;
+    img.classList.add('active');
     carouselContainer.appendChild(img);
-
-    imageNameElement.textContent = `Image ${currentIndex}`;
 }
 
 function changeImage() {
@@ -24,15 +21,9 @@ function changeImage() {
     showImage();
 }
 
-function startCarousel(interval) {
-    clearInterval(intervalId); // Clear the existing interval
-    intervalId = setInterval(changeImage, interval * 1000); // Set a new interval
-}
-
-document.getElementById('set-interval').addEventListener('click', () => {
+document.getElementById('start-session').addEventListener('click', () => {
     const interval = document.getElementById('interval').value || 5; // Default to 5 seconds
-    startCarousel(interval);
+    clearInterval(intervalId); // Clear any existing interval
+    intervalId = setInterval(changeImage, interval * 1000); // Start a new interval
+    showImage(); // Show the first image immediately
 });
-
-// Start the carousel with a default interval of 5 seconds on initial load
-window.onload = () => startCarousel(5);
