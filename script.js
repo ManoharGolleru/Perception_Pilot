@@ -30,15 +30,11 @@ function changeImage() {
     showImage();
 }
 
-function startCarousel(interval) {
-    clearInterval(intervalId); // Clear the existing interval
-    showImage(); // Show the first image immediately
-    intervalId = setInterval(changeImage, interval * 1000); // Set a new interval
-}
-
 document.getElementById('start-session').addEventListener('click', () => {
     const interval = document.getElementById('interval').value || 5; // Default to 5 seconds
-    startCarousel(interval);
+    clearInterval(intervalId); // Clear any existing interval
+    intervalId = setInterval(changeImage, interval * 1000); // Start a new interval
+    showImage(); // Show the first image immediately
 });
 
 // Preload the first image on initial load
