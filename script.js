@@ -18,6 +18,7 @@ function showImage() {
     const img = document.createElement('img');
     img.src = images[currentIndex];
     img.alt = `Image ${currentIndex}`;
+    img.classList.add('active');
     carouselContainer.appendChild(img);
 
     // Preload the next image
