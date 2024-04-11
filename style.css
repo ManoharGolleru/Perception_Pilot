@@ -1,6 +1,7 @@
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eaeaea; /* Light background for contrast */
 }
 
 .session-settings {
@@ -8,21 +9,28 @@ body {
     justify-content: center;
     align-items: center;
     padding: 20px;
-    background-color: #f4f4f4;
+    background-color: #ffffff; /* White background */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow */
+    border-radius: 8px; /* Rounded corners */
+    margin-bottom: 30px; /* Space between session settings and carousel */
 }
 
 .session-settings input[type="text"], 
 .session-settings .settings input[type="number"] {
-    padding: 5px;
+    padding: 10px;
     margin: 0 10px;
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 4px; /* Rounded corners for input fields */
 }
 
 #start-session {
-    padding: 5px 10px;
+    padding: 10px 15px;
     background-color: #4CAF50;
     color: white;
     border: none;
     cursor: pointer;
+    transition: background-color 0.3s; /* Smooth background color transition */
+    border-radius: 4px; /* Rounded corners for the button */
 }
 
 #start-session:hover {
@@ -34,30 +42,37 @@ body {
     flex-direction: column;
     align-items: center;
     max-width: 600px;
-    height: 600px;
-    margin: 20px auto;
+    height: 700px; /* Adjusted for better proportion */
+    margin: auto;
     overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* More pronounced shadow for focus */
+    border-radius: 8px; /* Rounded corners */
+    background-color: #ffffff; /* White background */
 }
+
 .carousel-images {
-    display: flex; /* Use flexbox for the container */
-    justify-content: center; /* Center content horizontally */
-    align-items: center; /* Center content vertically */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     height: 100%;
-    overflow: hidden; /* Hide overflow to maintain the size of the container */
 }
 
 .carousel-images img {
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain; /* Keep the aspect ratio of the images */
-    display: none; /* Hide images by default */
+    object-fit: contain;
+    display: none; /* Keep images hidden by default */
 }
 
 .carousel-images img.active {
-    display: block; /* Show only the active image */
+    display: block; /* Display only the active image */
+    transition: transform 0.5s ease-in-out; /* Smooth transition for changing images */
 }
 
-
-
+.image-info {
+    text-align: center;
+    padding: 10px;
+    font-size: 18px; /* Larger font size for better readability */
+}
 
