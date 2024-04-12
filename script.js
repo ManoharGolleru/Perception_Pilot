@@ -1,6 +1,6 @@
 const images = [];
 for (let i = 0; i <= 28; i++) {
-    images.push(`PE/${i}.jpg`);
+    images.push(`collage/${i}.jpg`);
 }
 
 let currentIndex = 0;
