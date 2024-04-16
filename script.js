@@ -6,15 +6,6 @@ for (let i = 1; i <= 20; i++) {
 let currentIndex = 1;
 let intervalId;
 
-document.getElementById('toggle-dark-mode').addEventListener('click', function() {
-    const body = document.body;
-    if (body.getAttribute('data-theme') === 'dark') {
-        body.setAttribute('data-theme', 'light');
-    } else {
-        body.setAttribute('data-theme', 'dark');
-    }
-});
-
 
 function preloadImage(index) {
     const img = new Image(); // Create a new Image object
