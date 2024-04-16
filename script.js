@@ -3,7 +3,7 @@ for (let i = 1; i <= 20; i++) {
     images.push(`PE/${i}.png`);
 }
 
-let currentIndex = 1;
+let currentIndex = 0;
 let intervalId;
 
 
@@ -40,4 +40,4 @@ document.getElementById('start-session').addEventListener('click', () => {
 });
 
 // Preload the first image on initial load
-preloadImage(1);
+preloadImage(0);
