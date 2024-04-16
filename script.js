@@ -1,5 +1,5 @@
 const images = [];
-for (let i = 0; i <= 28; i++) {
+for (let i = 0; i <= 20; i++) {
     images.push(`Collage/${i}.png`);
 }
 
