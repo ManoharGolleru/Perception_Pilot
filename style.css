@@ -1,7 +1,28 @@
+:root {
+    /* Light theme colors */
+    --background-color: #eaeaea;
+    --text-color: #000;
+    --container-background-color: #ffffff;
+    --border-color: #ccc;
+    --button-background-color: #4CAF50;
+    --button-hover-background-color: #45a049;
+}
+
+[data-theme="dark"] {
+    /* Dark theme colors */
+    --background-color: #333;
+    --text-color: #fff;
+    --container-background-color: #424242;
+    --border-color: #666;
+    --button-background-color: #4CAF50;
+    --button-hover-background-color: #45a049;
+}
+
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #eaeaea; /* Light background for contrast */
+    background-color: var(--background-color);
+    color: var(--text-color);
 }
 
 .session-settings {
@@ -9,32 +30,35 @@ body {
     justify-content: center;
     align-items: center;
     padding: 20px;
-    background-color: #ffffff; /* White background */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow */
-    border-radius: 8px; /* Rounded corners */
-    margin-bottom: 30px; /* Space between session settings and carousel */
+    background-color: var(--container-background-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid var(--border-color);
 }
 
 .session-settings input[type="text"], 
 .session-settings .settings input[type="number"] {
     padding: 10px;
     margin: 0 10px;
-    border: 1px solid #ccc; /* Light border */
-    border-radius: 4px; /* Rounded corners for input fields */
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--background-color);
+    color: var(--text-color);
 }
 
 #start-session {
     padding: 10px 15px;
-    background-color: #4CAF50;
+    background-color: var(--button-background-color);
     color: white;
     border: none;
     cursor: pointer;
-    transition: background-color 0.3s; /* Smooth background color transition */
-    border-radius: 4px; /* Rounded corners for the button */
+    transition: background-color 0.3s;
+    border-radius: 4px;
 }
 
 #start-session:hover {
-    background-color: #45a049;
+    background-color: var(--button-hover-background-color);
 }
 
 .carousel {
@@ -42,12 +66,12 @@ body {
     flex-direction: column;
     align-items: center;
     max-width: 600px;
-    height: 600px; /* Adjusted for better proportion */
+    height: 600px;
     margin: auto;
     overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* More pronounced shadow for focus */
-    border-radius: 8px; /* Rounded corners */
-    background-color: #ffffff; /* White background */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    background-color: var(--container-background-color);
 }
 
 .carousel-images {
@@ -62,17 +86,17 @@ body {
     max-width: 100%;
     max-height: 100%;
     object-fit: cover;
-    display: none; /* Keep images hidden by default */
+    display: none;
 }
 
 .carousel-images img.active {
-    display: block; /* Display only the active image */
-    transition: transform 0.5s ease-in-out; /* Smooth transition for changing images */
+    display: block;
+    transition: transform 0.5s ease-in-out;
 }
 
 .image-info {
     text-align: center;
     padding: 10px;
-    font-size: 18px; /* Larger font size for better readability */
+    font-size: 18px;
 }
 
