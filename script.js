@@ -3,7 +3,7 @@ for (let i = 1; i <= 20; i++) {
     images.push(`Collage/${i}.png`);
 }
 
-let currentIndex = 0;
+let currentIndex = 1;
 let intervalId;
 
 function preloadImage(index) {
@@ -39,4 +39,4 @@ document.getElementById('start-session').addEventListener('click', () => {
 });
 
 // Preload the first image on initial load
-preloadImage(0);
+preloadImage(1);
