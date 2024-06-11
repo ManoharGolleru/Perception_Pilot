@@ -1,43 +1,105 @@
-const images = [];
-for (let i = 1; i <= 20; i++) {
-    images.push(`PE/${i}.png`);
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const nameInput = document.getElementById('name');
+    const ageInput = document.getElementById('age');
+    const genderSelect = document.getElementById('gender');
+    const specialisationInput = document.getElementById('specialisation');
+    const startSessionButton = document.getElementById('start-session');
+    const videoPlayer = document.getElementById('video-player');
+    const replayButton = document.getElementById('replay-button');
+    const nextButton = document.getElementById('next-button');
 
-let currentIndex = 0;
-let intervalId;
+    let randomizedVideos = [];
+    let currentVideoIndex = 0;
+    let sessionData = [];
 
+    startSessionButton.addEventListener('click', startSession);
+    replayButton.addEventListener('click', replayVideo);
+    nextButton.addEventListener('click', nextVideo);
+    videoPlayer.addEventListener('ended', onVideoEnd);
 
-function preloadImage(index) {
-    const img = new Image(); // Create a new Image object
-    img.src = images[index];
-}
+    async function fetchVideos() {
+        const response = await fetch('videos.json');
+        const data = await response.json();
+        return data.videos;
+    }
 
-function showImage() {
-    const carouselContainer = document.getElementById('carousel-images');
-    carouselContainer.innerHTML = ''; // Clear the container
+    async function startSession() {
+        const participantData = {
+            name: nameInput.value,
+            age: ageInput.value,
+            gender: genderSelect.value,
+            specialisation: specialisationInput.value,
+        };
 
-    const img = document.createElement('img');
-    img.src = images[currentIndex];
-    img.alt = `Image ${currentIndex}`;
-    img.classList.add('active');
-    carouselContainer.appendChild(img);
+        if (!participantData.name || !participantData.age || !participantData.gender || !participantData.specialisation) {
+            alert('Please fill in all fields');
+            return;
+        }
 
-    // Preload the next image
-    const nextIndex = (currentIndex + 1) % images.length;
-    preloadImage(nextIndex);
-}
+        // Fetch and randomize video order
+        const videoClips = await fetchVideos();
+        randomizedVideos = shuffleArray(videoClips);
+        currentVideoIndex = 0;
 
-function changeImage() {
-    currentIndex = (currentIndex + 1) % images.length;
-    showImage();
-}
+        // Preload first video
+        loadVideo(randomizedVideos[currentVideoIndex]);
+    }
 
-document.getElementById('start-session').addEventListener('click', () => {
-    const interval = document.getElementById('interval').value || 5; // Default to 5 seconds
-    clearInterval(intervalId); // Clear any existing interval
-    intervalId = setInterval(changeImage, interval * 1000); // Start a new interval
-    showImage(); // Show the first image immediately
+    function loadVideo(videoPath) {
+        videoPlayer.src = videoPath;
+        videoPlayer.load();
+    }
+
+    function replayVideo() {
+        videoPlayer.play();
+        sessionData.push({
+            video: randomizedVideos[currentVideoIndex],
+            startTime: new Date().toISOString(),
+            action: 'replay',
+        });
+    }
+
+    function nextVideo() {
+        if (currentVideoIndex < randomizedVideos.length - 1) {
+            currentVideoIndex++;
+            loadVideo(randomizedVideos[currentVideoIndex]);
+            nextButton.disabled = true;
+        } else {
+            endSession();
+        }
+    }
+
+    function onVideoEnd() {
+        sessionData.push({
+            video: randomizedVideos[currentVideoIndex],
+            endTime: new Date().toISOString(),
+        });
+        nextButton.disabled = false;
+    }
+
+    function endSession() {
+        // Prepare CSV data
+        const csvContent = "data:text/csv;charset=utf-8,"
+            + sessionData.map(e => `${e.video},${e.startTime},${e.endTime || ''},${e.action || ''}`).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "session_data.csv");
+        document.body.appendChild(link);
+        link.click();
+    }
+
+    function shuffleArray(array) {
+        let currentIndex = array.length, temporaryValue, randomIndex;
+        while (0 !== currentIndex) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+        return array;
+    }
 });
 
-// Preload the first image on initial load
-preloadImage(0);
