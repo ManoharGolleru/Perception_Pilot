@@ -93,8 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function endSession() {
-        // Prepare CSV data
+        // Prepare CSV data with headers
         const csvContent = "data:text/csv;charset=utf-8,"
+            + "Video,Start Time,End Time,Action\n"
             + sessionData.map(e => `${e.video},${e.startTime},${e.endTime || ''},${e.action || ''}`).join("\n");
 
         const encodedUri = encodeURI(csvContent);
