@@ -41,6 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide session settings and show video container
         sessionSettings.style.display = 'none';
         videoContainer.classList.add('fullscreen');
+        if (videoContainer.requestFullscreen) {
+            videoContainer.requestFullscreen();
+        } else if (videoContainer.mozRequestFullScreen) { /* Firefox */
+            videoContainer.mozRequestFullScreen();
+        } else if (videoContainer.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+            videoContainer.webkitRequestFullscreen();
+        } else if (videoContainer.msRequestFullscreen) { /* IE/Edge */
+            videoContainer.msRequestFullscreen();
+        }
 
         // Fetch and randomize video order
         const videoClips = await fetchVideos();
@@ -94,6 +103,17 @@ document.addEventListener('DOMContentLoaded', () => {
         link.setAttribute("download", "session_data.csv");
         document.body.appendChild(link);
         link.click();
+
+        // Exit fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) { /* Firefox */
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { /* IE/Edge */
+            document.msExitFullscreen();
+        }
     }
 
     function shuffleArray(array) {
