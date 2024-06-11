@@ -6,8 +6,9 @@ body {
 }
 
 .session-settings {
-    display: ruby-text;
+    display: flex;
     flex-direction: row;
+    justify-content: center;
     align-items: center;
     padding: 20px;
     background-color: #333;
