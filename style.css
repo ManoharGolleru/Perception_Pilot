@@ -44,22 +44,25 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
-    background-color: grey;
-    border-radius: 8px;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    position: absolute;
+    top: 0;
+    left: 0;
+    visibility: hidden;
 }
 
 #video-player {
-    width: 100%;
-    border-radius: 8px;
+    width: 80%;
+    height: 80%;
 }
 
 .controls {
     display: flex;
     justify-content: space-between;
-    width: 100%;
+    width: 50%;
     margin-top: 20px;
 }
 
@@ -80,4 +83,8 @@ body {
 
 .controls button:hover:not(:disabled) {
     background-color: #45a049;
+}
+
+.fullscreen {
+    visibility: visible;
 }
