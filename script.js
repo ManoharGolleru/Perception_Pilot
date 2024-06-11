@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const videoPlayer = document.getElementById('video-player');
     const replayButton = document.getElementById('replay-button');
     const nextButton = document.getElementById('next-button');
+    const sessionSettings = document.querySelector('.session-settings');
+    const videoContainer = document.querySelector('.video-container');
 
     let randomizedVideos = [];
     let currentVideoIndex = 0;
@@ -35,6 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please fill in all fields');
             return;
         }
+
+        // Hide session settings and show video container
+        sessionSettings.style.display = 'none';
+        videoContainer.classList.add('fullscreen');
 
         // Fetch and randomize video order
         const videoClips = await fetchVideos();
@@ -102,4 +108,3 @@ document.addEventListener('DOMContentLoaded', () => {
         return array;
     }
 });
-
