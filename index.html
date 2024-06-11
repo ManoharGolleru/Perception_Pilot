@@ -3,26 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Carousel with Name and Timer</title>
+    <title>Video Experiment</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="session-settings">
         <input type="text" id="name" placeholder="Enter Name">
-        <div class="settings">
-            <label for="interval">Interval (s):</label>
-            <input type="number" id="interval" value="5" min="1">
-        </div>
+        <input type="number" id="age" placeholder="Enter Age">
+        <select id="gender">
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+        </select>
+        <input type="text" id="specialisation" placeholder="Enter Area of Specialisation">
         <button id="start-session">Start Session</button>
-        
     </div>
 
-    <div class="carousel">
-        <div class="carousel-images" id="carousel-images">
-            <!-- Images will be loaded here by JavaScript -->
+    <div class="video-container">
+        <video id="video-player" controls></video>
+        <div class="controls">
+            <button id="replay-button">Replay</button>
+            <button id="next-button" disabled>Next</button>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
+
 
