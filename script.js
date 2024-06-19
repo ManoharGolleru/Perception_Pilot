@@ -31,14 +31,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentVideoIndex = 0;
     let sessionData = [];
     let participantData = {};
+    let recordedBlobs = [];
 
     async function fetchVideos() {
-        const response = await fetch('videos.json'); // Ensure videos.json is in the same directory as your HTML file
-        const data = await response.json();
-        return data.videos;
+        try {
+            const response = await fetch('videos.json'); // Ensure videos.json is in the same directory as your HTML file
+            const data = await response.json();
+            return data.videos;
+        } catch (error) {
+            console.error('Error fetching videos:', error);
+            return [];
+        }
     }
 
-    function getAccessToken() {
+    async function getAccessToken() {
         const header = {
             alg: "RS256",
             typ: "JWT"
@@ -61,15 +67,19 @@ document.addEventListener('DOMContentLoaded', () => {
             privateKey
         );
 
-        return fetch("https://oauth2.googleapis.com/token", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`
-        })
-        .then(response => response.json())
-        .then(data => data.access_token);
+        try {
+            const response = await fetch("https://oauth2.googleapis.com/token", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`
+            });
+            const data = await response.json();
+            return data.access_token;
+        } catch (error) {
+            console.error('Error fetching access token:', error);
+        }
     }
 
     async function startSession() {
@@ -154,6 +164,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(link);
         link.click();
 
+        // Upload all recorded blobs to Google Drive
+        recordedBlobs.forEach((blob, index) => {
+            uploadToDrive(blob, index + 1);
+        });
+
         // Exit fullscreen
         if (document.exitFullscreen) {
             document.exitFullscreen();
@@ -193,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 audioChunks.push(event.data);
                 if (mediaRecorder.state === "inactive") {
                     const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                    uploadToDrive(blob);
+                    recordedBlobs.push(blob); // Store blob for later upload
                 }
             };
         }
@@ -207,24 +222,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function uploadToDrive(blob) {
-        const fileName = `${participantData.name}_${randomizedVideos[currentVideoIndex].split('/').pop()}_${currentVideoIndex + 1}.webm`;
+    async function uploadToDrive(blob, index) {
+        const fileName = `${participantData.name}_${randomizedVideos[currentVideoIndex].split('/').pop()}_${index}.webm`;
 
-        const accessToken = await getAccessToken();
-        const form = new FormData();
-        form.append('metadata', new Blob([JSON.stringify({
-            name: fileName,
-            mimeType: 'audio/webm'
-        })], { type: 'application/json' }));
-        form.append('file', blob);
+        try {
+            const accessToken = await getAccessToken();
+            const form = new FormData();
+            form.append('metadata', new Blob([JSON.stringify({
+                name: fileName,
+                mimeType: 'audio/webm'
+            })], { type: 'application/json' }));
+            form.append('file', blob);
 
-        fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-            method: 'POST',
-            headers: new Headers({ 'Authorization': `Bearer ${accessToken}` }),
-            body: form
-        }).then(response => response.json())
-          .then(data => console.log(data))
-          .catch(error => console.error(error));
+            const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                method: 'POST',
+                headers: new Headers({ 'Authorization': `Bearer ${accessToken}` }),
+                body: form
+            });
+            const data = await response.json();
+            console.log('Uploaded file:', data);
+        } catch (error) {
+            console.error('Error uploading file:', error);
+        }
     }
 
     // Initialize the client
@@ -233,3 +252,4 @@ document.addEventListener('DOMContentLoaded', () => {
     nextButton.addEventListener('click', nextVideo);
     videoPlayer.addEventListener('ended', onVideoEnd);
 });
+
