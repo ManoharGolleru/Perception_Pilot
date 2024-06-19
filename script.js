@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
           "token_uri": "https://oauth2.googleapis.com/token",
           "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
           "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/pilot-644%40coherent-sphere-426917-u4.iam.gserviceaccount.com",
-          "universe_domain": "googleapis.com" };
+          "universe_domain": "googleapis.com" 
     };
 
     const nameInput = document.getElementById('name');
