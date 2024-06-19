@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const CLIENT_ID = '988575999570-n3nknj4743tpl3a1augeepmdicp28imu.apps.googleusercontent.com'; // Replace with your client ID
+    const API_KEY = 'AIzaSyBX-oPHu-Ky9hOl3H1It0_KTlvIFgsuC2E'; // Replace with your API key
+    const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+    const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
     const nameInput = document.getElementById('name');
     const ageInput = document.getElementById('age');
     const genderSelect = document.getElementById('gender');
@@ -9,24 +14,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextButton = document.getElementById('next-button');
     const sessionSettings = document.querySelector('.session-settings');
     const videoContainer = document.querySelector('.video-container');
+    const narrationPopup = document.getElementById('narration-popup');
 
+    let mediaRecorder;
+    let audioChunks = [];
     let randomizedVideos = [];
     let currentVideoIndex = 0;
     let sessionData = [];
+    let participantData = {};
 
-    startSessionButton.addEventListener('click', startSession);
-    replayButton.addEventListener('click', replayVideo);
-    nextButton.addEventListener('click', nextVideo);
-    videoPlayer.addEventListener('ended', onVideoEnd);
-
-    async function fetchVideos() {
-        const response = await fetch('videos.json');
-        const data = await response.json();
-        return data.videos;
+    function initClient() {
+        gapi.client.init({
+            apiKey: API_KEY,
+            clientId: CLIENT_ID,
+            discoveryDocs: DISCOVERY_DOCS,
+            scope: SCOPES
+        }).then(() => {
+            gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+            updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+        });
     }
 
-    async function startSession() {
-        const participantData = {
+    function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+            startSessionButton.addEventListener('click', startSession);
+            replayButton.addEventListener('click', replayVideo);
+            nextButton.addEventListener('click', nextVideo);
+            videoPlayer.addEventListener('ended', onVideoEnd);
+        } else {
+            gapi.auth2.getAuthInstance().signIn();
+        }
+    }
+
+    function startSession() {
+        participantData = {
             name: nameInput.value,
             age: ageInput.value,
             gender: genderSelect.value,
@@ -52,12 +73,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Fetch and randomize video order
-        const videoClips = await fetchVideos();
-        randomizedVideos = shuffleArray(videoClips);
-        currentVideoIndex = 0;
-
-        // Preload first video
-        loadVideo(randomizedVideos[currentVideoIndex]);
+        fetchVideos().then(videoClips => {
+            randomizedVideos = shuffleArray(videoClips);
+            currentVideoIndex = 0;
+            loadVideo(randomizedVideos[currentVideoIndex]);
+        });
     }
 
     function loadVideo(videoPath) {
@@ -65,13 +85,15 @@ document.addEventListener('DOMContentLoaded', () => {
         videoPlayer.load();
     }
 
-    function replayVideo() {
+    async function replayVideo() {
         videoPlayer.play();
+        showNarrationPopup();
         sessionData.push({
             video: randomizedVideos[currentVideoIndex],
             startTime: new Date().toISOString(),
             action: 'replay',
         });
+        startRecording();
     }
 
     function nextVideo() {
@@ -90,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             endTime: new Date().toISOString(),
         });
         nextButton.disabled = false;
+        stopRecording();
     }
 
     function endSession() {
@@ -128,4 +151,65 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return array;
     }
+
+    function showNarrationPopup() {
+        narrationPopup.style.display = 'block';
+        setTimeout(() => {
+            narrationPopup.style.display = 'none';
+        }, 2000);
+    }
+
+    async function startRecording() {
+        if (!mediaRecorder) {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+                if (mediaRecorder.state === "inactive") {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    uploadToDrive(blob);
+                }
+            };
+        }
+        audioChunks = [];
+        mediaRecorder.start();
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+        }
+    }
+
+    function uploadToDrive(blob) {
+        const fileName = `${participantData.name}_${randomizedVideos[currentVideoIndex].split('/').pop()}_${currentVideoIndex + 1}.webm`;
+        gapi.load('client:auth2', () => {
+            gapi.client.init({
+                apiKey: API_KEY,
+                clientId: CLIENT_ID,
+                discoveryDocs: DISCOVERY_DOCS,
+                scope: SCOPES
+            }).then(() => {
+                const fileMetadata = {
+                    'name': fileName,
+                    'mimeType': 'audio/webm'
+                };
+
+                const accessToken = gapi.auth.getToken().access_token;
+                const form = new FormData();
+                form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
+                form.append('file', blob);
+
+                fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                    method: 'POST',
+                    headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+                    body: form
+                }).then(response => response.json())
+                  .then(data => console.log(data))
+                  .catch(error => console.error(error));
+            });
+        });
+    }
+
+    gapi.load('client:auth2', initClient);
 });
