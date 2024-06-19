@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('videos.json'); // Ensure videos.json is in the same directory as your HTML file
             const data = await response.json();
+            console.log('Fetched videos:', data.videos);
             return data.videos;
         } catch (error) {
             console.error('Error fetching videos:', error);
@@ -76,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`
             });
             const data = await response.json();
+            console.log('Fetched access token:', data);
             return data.access_token;
         } catch (error) {
             console.error('Error fetching access token:', error);
@@ -209,6 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (mediaRecorder.state === "inactive") {
                     const blob = new Blob(audioChunks, { type: 'audio/webm' });
                     recordedBlobs.push(blob); // Store blob for later upload
+                    console.log('Recorded blob:', blob);
                 }
             };
         }
@@ -246,10 +249,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    async function uploadSampleTextFile() {
+        try {
+            const accessToken = await getAccessToken();
+            const fileContent = 'Hello, this is a sample text file.';
+            const blob = new Blob([fileContent], { type: 'text/plain' });
+
+            const form = new FormData();
+            form.append('metadata', new Blob([JSON.stringify({
+                name: 'sample.txt',
+                mimeType: 'text/plain'
+            })], { type: 'application/json' }));
+            form.append('file', blob);
+
+            const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                method: 'POST',
+                headers: new Headers({ 'Authorization': `Bearer ${accessToken}` }),
+                body: form
+            });
+            const data = await response.json();
+            console.log('Uploaded sample text file:', data);
+        } catch (error) {
+            console.error('Error uploading sample text file:', error);
+        }
+    }
+
+    // Test the upload by creating and uploading a sample text file
+    uploadSampleTextFile();
+
     // Initialize the client
     startSessionButton.addEventListener('click', startSession);
     replayButton.addEventListener('click', replayVideo);
     nextButton.addEventListener('click', nextVideo);
     videoPlayer.addEventListener('ended', onVideoEnd);
 });
-
