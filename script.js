@@ -31,6 +31,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentVideoIndex = 0;
     let sessionData = [];
     let participantData = {};
+    startSessionButton.addEventListener('click', startSession);
+    replayButton.addEventListener('click', replayVideo);
+    nextButton.addEventListener('click', nextVideo);
+    videoPlayer.addEventListener('ended', onVideoEnd);
+
+    async function fetchVideos() {
+        const response = await fetch('videos.json');
+        const data = await response.json();
+        return data.videos;
+    }
 
     function getAccessToken() {
         const header = {
@@ -92,12 +102,14 @@ document.addEventListener('DOMContentLoaded', () => {
             videoContainer.msRequestFullscreen();
         }
 
-        // Fetch and randomize video order
-        fetchVideos().then(videoClips => {
-            randomizedVideos = shuffleArray(videoClips);
-            currentVideoIndex = 0;
-            loadVideo(randomizedVideos[currentVideoIndex]);
-        });
+        const videoClips = await fetchVideos();
+        randomizedVideos = shuffleArray(videoClips);
+        currentVideoIndex = 0;
+
+        // Preload first video
+        loadVideo(randomizedVideos[currentVideoIndex]);
+
+        
     }
 
     function loadVideo(videoPath) {
