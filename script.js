@@ -10,6 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const sessionSettings = document.querySelector('.session-settings');
     const videoContainer = document.querySelector('.video-container');
     const narrationPopup = document.getElementById('narration-popup');
+    const countdownElement = document.createElement('div');
+
+    countdownElement.style.position = 'fixed';
+    countdownElement.style.top = '50%';
+    countdownElement.style.left = '50%';
+    countdownElement.style.transform = 'translate(-50%, -50%)';
+    countdownElement.style.fontSize = '48px';
+    countdownElement.style.color = '#fff';
+    countdownElement.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    countdownElement.style.padding = '20px';
+    countdownElement.style.borderRadius = '10px';
+    countdownElement.style.display = 'none';
+    document.body.appendChild(countdownElement);
 
     let mediaRecorder;
     let audioChunks = [];
@@ -27,6 +40,17 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error fetching videos:', error);
             return [];
+        }
+    }
+
+    async function requestMicrophonePermission() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream.getTracks().forEach(track => track.stop());
+            console.log('Microphone permission granted');
+        } catch (error) {
+            console.error('Microphone permission denied', error);
+            alert('Microphone permission is required to proceed with the experiment.');
         }
     }
 
@@ -77,7 +101,20 @@ document.addEventListener('DOMContentLoaded', () => {
             startTime: new Date().toISOString(),
             action: 'replay',
         });
-        startRecording();
+
+        countdownElement.style.display = 'block';
+        let countdown = 5;
+        countdownElement.textContent = countdown;
+
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+            if (countdown === 0) {
+                clearInterval(countdownInterval);
+                countdownElement.style.display = 'none';
+                startRecording();
+            }
+        }, 1000);
     }
 
     function nextVideo() {
@@ -150,8 +187,8 @@ document.addEventListener('DOMContentLoaded', () => {
             mediaRecorder.ondataavailable = event => {
                 audioChunks.push(event.data);
                 if (mediaRecorder.state === "inactive") {
-                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                    downloadBlob(blob, `${participantData.name}_${randomizedVideos[currentVideoIndex].split('/').pop()}_${currentVideoIndex + 1}.webm`);
+                    const blob = new Blob(audioChunks, { type: 'audio/wav' });
+                    downloadBlob(blob, `${participantData.name}_${randomizedVideos[currentVideoIndex].split('/').pop()}_${currentVideoIndex + 1}.wav`);
                     console.log('Recorded blob:', blob);
                 }
             };
@@ -177,6 +214,9 @@ document.addEventListener('DOMContentLoaded', () => {
         window.URL.revokeObjectURL(url);
         console.log('Downloaded file:', fileName);
     }
+
+    // Request microphone permission on page load
+    requestMicrophonePermission();
 
     // Initialize the client
     startSessionButton.addEventListener('click', startSession);
