@@ -59,7 +59,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide session settings and show video container
         sessionSettings.style.display = 'none';
         videoContainer.classList.add('fullscreen');
-        enterFullscreen(videoContainer);
+        if (videoContainer.requestFullscreen) {
+            videoContainer.requestFullscreen();
+        } else if (videoContainer.mozRequestFullScreen) { /* Firefox */
+            videoContainer.mozRequestFullScreen();
+        } else if (videoContainer.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+            videoContainer.webkitRequestFullscreen();
+        } else if (videoContainer.msRequestFullscreen) { /* IE/Edge */
+            videoContainer.msRequestFullscreen();
+        }
 
         const videoClips = await fetchVideos();
         randomizedVideos = shuffleArray(videoClips);
@@ -69,18 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loadVideo(randomizedVideos[currentVideoIndex]);
     }
 
-    function enterFullscreen(element) {
-        if (element.requestFullscreen) {
-            element.requestFullscreen();
-        } else if (element.mozRequestFullScreen) { /* Firefox */
-            element.mozRequestFullScreen();
-        } else if (element.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-            element.webkitRequestFullscreen();
-        } else if (element.msRequestFullscreen) { /* IE/Edge */
-            element.msRequestFullscreen();
-        }
-    }
-
     function loadVideo(videoPath) {
         videoPlayer.src = videoPath;
         videoPlayer.load();
@@ -88,30 +84,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function replayVideo() {
-        showNarrationPopup();
-        sessionData.push({
-            video: randomizedVideos[currentVideoIndex],
-            startTime: new Date().toISOString(),
-            action: 'replay',
-        });
+    showNarrationPopup();
+    sessionData.push({
+        video: randomizedVideos[currentVideoIndex],
+        startTime: new Date().toISOString(),
+        action: 'replay',
+    });
 
-        countdownElement.style.display = 'block';
-        let countdown = 5;
+    countdownElement.style.display = 'block';
+    let countdown = 5;
+    countdownElement.textContent = countdown;
+
+    startRecording(); // Start recording when the countdown starts
+
+    const countdownInterval = setInterval(() => {
+        countdown--;
         countdownElement.textContent = countdown;
-
-        startRecording(); // Start recording when the countdown starts
-
-        const countdownInterval = setInterval(() => {
-            countdown--;
-            countdownElement.textContent = countdown;
-            if (countdown === 0) {
-                clearInterval(countdownInterval);
-                countdownElement.style.display = 'none';
-                narrationPopup.style.display = 'none';
-                videoPlayer.play();
-            }
-        }, 1000);
-    }
+        if (countdown === 0) {
+            clearInterval(countdownInterval);
+            countdownElement.style.display = 'none';
+            narrationPopup.style.display = 'none';
+            videoPlayer.play();
+        }
+    }, 1000);
+}
 
     function nextVideo() {
         if (currentVideoIndex < randomizedVideos.length - 1) {
@@ -146,10 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
         link.click();
 
         // Exit fullscreen
-        exitFullscreen();
-    }
-
-    function exitFullscreen() {
         if (document.exitFullscreen) {
             document.exitFullscreen();
         } else if (document.mozCancelFullScreen) { /* Firefox */
@@ -175,9 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showNarrationPopup() {
         narrationPopup.style.display = 'block';
-        setTimeout(() => {
-            narrationPopup.style.display = 'none';
-        }, 2000);
     }
 
     async function startRecording() {
