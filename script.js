@@ -9,52 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextButton = document.getElementById('next-button');
     const sessionSettings = document.querySelector('.session-settings');
     const videoContainer = document.querySelector('.video-container');
-    const narrationPopup = document.createElement('div');
-    const countdownElement = document.createElement('div');
-    const recordingIndicator = document.createElement('div');
-
-    // Styles for the narration popup
-    narrationPopup.style.position = 'fixed';
-    narrationPopup.style.top = '40%';
-    narrationPopup.style.left = '50%';
-    narrationPopup.style.transform = 'translate(-50%, -50%)';
-    narrationPopup.style.fontSize = '32px';
-    narrationPopup.style.color = '#fff';
-    narrationPopup.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-    narrationPopup.style.padding = '20px';
-    narrationPopup.style.borderRadius = '10px';
-    narrationPopup.style.display = 'none';
-    narrationPopup.style.zIndex = '1000'; // Ensures it appears above other elements
-    narrationPopup.textContent = 'Start Narrating';
-    document.body.appendChild(narrationPopup);
-
-    // Styles for the countdown element
-    countdownElement.style.position = 'fixed';
-    countdownElement.style.top = '50%';
-    countdownElement.style.left = '50%';
-    countdownElement.style.transform = 'translate(-50%, -50%)';
-    countdownElement.style.fontSize = '48px';
-    countdownElement.style.color = '#fff';
-    countdownElement.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-    countdownElement.style.padding = '20px';
-    countdownElement.style.borderRadius = '10px';
-    countdownElement.style.display = 'none';
-    countdownElement.style.zIndex = '1000'; // Ensures it appears above other elements
-    document.body.appendChild(countdownElement);
-
-    // Styles for the recording indicator
-    recordingIndicator.style.position = 'fixed';
-    recordingIndicator.style.top = '10px';
-    recordingIndicator.style.left = '10px';
-    recordingIndicator.style.fontSize = '20px';
-    recordingIndicator.style.color = '#fff';
-    recordingIndicator.style.backgroundColor = 'rgba(255, 0, 0, 0.7)';
-    recordingIndicator.style.padding = '10px';
-    recordingIndicator.style.borderRadius = '5px';
-    recordingIndicator.style.display = 'none';
-    recordingIndicator.style.zIndex = '1000'; // Ensures it appears above other elements
-    recordingIndicator.textContent = 'Recording...';
-    document.body.appendChild(recordingIndicator);
+    const narrationPopup = document.getElementById('narration-popup');
+    const countdownElement = document.getElementById('countdown');
+    const recordingIndicator = document.getElementById('recording-indicator');
 
     let mediaRecorder;
     let audioChunks = [];
@@ -257,4 +214,3 @@ document.addEventListener('DOMContentLoaded', () => {
     nextButton.addEventListener('click', nextVideo);
     videoPlayer.addEventListener('ended', onVideoEnd);
 });
-
