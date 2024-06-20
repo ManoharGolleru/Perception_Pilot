@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Styles for the narration popup
     narrationPopup.style.position = 'fixed';
-    narrationPopup.style.top = '50%';
+    narrationPopup.style.top = '40%';
     narrationPopup.style.left = '50%';
     narrationPopup.style.transform = 'translate(-50%, -50%)';
     narrationPopup.style.fontSize = '32px';
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadVideo(videoPath) {
         videoPlayer.src = videoPath;
         videoPlayer.load();
-        videoPlayer.muted = true;
+        videoPlayer.muted = true; // Mute the video player
     }
 
     async function replayVideo() {
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.exitFullscreen();
         } else if (document.mozCancelFullScreen) { /* Firefox */
             document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+        } else if (document.webkitExitFullscreen) { /* Chrome, Safari & Opera */
             document.webkitExitFullscreen();
         } else if (document.msExitFullscreen) { /* IE/Edge */
             document.msExitFullscreen();
@@ -209,9 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showNarrationPopup() {
         narrationPopup.style.display = 'block';
-        setTimeout(() => {
-            narrationPopup.style.display = 'none';
-        }, 2000);
     }
 
     async function startRecording() {
