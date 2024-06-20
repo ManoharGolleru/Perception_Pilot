@@ -1,18 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const SERVICE_ACCOUNT_KEY = {
-        "type": "service_account",
-          "project_id": "coherent-sphere-426917-u4",
-          "private_key_id": "39e2dec416cd0e51391ffe389ea1e20c4474f49d",
-          "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCvDDOQHb6hWvtU\nxKML7t0U4BCDMy1V74N3dUyOvn341HrhAHzctz960pn9OxBy6Gy+SfLX3NdxTCeH\nhnrvzXYxALFNjT94jfhtiXMzIm6XxmwqzbCBztFSVOIZk0JN59SzFZnKhqapo8X4\nkuq4llorDvGHUvRVoN22r+0V8yGdPxXbS1ZdwiUcKGBqD4OzdwUHm3zebIrLKHpC\nhpqZ4J3hhmUIFSsfzJWw/Su0lu+yhb9wpzegsFlZRZvPS+w0r5bATiNUeoQSAhWH\nwIY6TIi0aWTwyWx8zgvaLrYOyxNyD52OYa2AArURv+8GNWgtOqwhqL2/u49ReRS7\n9l2zCjVpAgMBAAECggEAAmOhvolRZUVnIciPSyXm+ZZ3UzsbFs2uly5QLbCW6pMH\n3FNT4PVVVflS5bxtJIxck5pRyLV4cVDvRy/ENMqynseaI+tWHvCdH+2c12lUZhjs\nuAbXrmXiwINtFJlIceTEp+8XCscctjsIhDSJJJzUvTq2fDjbIeIQtKIhE8geQNWq\nRU7TZYpE8YIlReVduuwQg3DAmLtGQ2e+xX0wova7hcc2SbXLrsvX6MNSrt+Qmtty\n2Tp8UEuQY0CbIyTSst7vxXiYnw6K0p01kFfq1C4qkp6OsSGG44vwk/fyadEGjxr7\nrsTovVMzniibkzcP8lAvlus3TIMGE3JakIjU60J4gwKBgQDv2lQKUec5eIAqpofb\n90E3vO7AYaYQTVQxO//Y3ibuBPhWYOjYd1AEs9Iss7aEOgGq0uNS65hioj7wRME4\nSTZblpLfWqY7zJWCONR/DfrpG1WqRIV0BpuJZ4+kTma3J0WWul4cPZZY+ecIiUwa\nI7EnbJX/GFwUIKJfya3HwnqqhwKBgQC61QH4hCbo10odbOqkXImILLEEwX+lp8EP\nSl2CTCW6lzqc6dUQhWufRKZcY698qie5abm4skRFeH6d4B//a10AFyq2H49YHDQA\nVTlAPaKLMkvgiiVXmZdbaJjzMlCBdbTEEqn8g9XWn7l+yyVb9Ajm/BrWxZ39Ri4i\nu8saa8xsjwKBgHBGjUx/ZnOamrRcXAB1z4ud300i6K9840pgwbTs2OBWZ0FX/+dE\ngqqQ2nOedHOVC67BJTRtoFmbhUbHiIMmklFxPLNdJa+cZugcXixTiP6RkxovFSFo\n7mn1lmHdaWuW8JZMCz3A/p4L7UArtPoPdx/zToupBYFOfXPFXpnBydYFAoGAAxWl\nNK8p3UpApP+5WAFXG/Jw8b0oGFoOq+v0Y0RSkyQQCasqo10wi66ceIYEzbAZe8wt\nDsmSqvr0TDL5FER3gprfT6ZxvWipyx+dFFxwJJAuBIUDXNDiWNX/QHSiM6D33QzZ\n1Ztvml2EuH0uHriGtRmQb99PXnEcLeKf1c3V0C0CgYBj47wtWeQeG3YtdK5ODGEP\nqEXVHJoiJ+0xq9pGj2dB/00djcOfiRzwM+SCeEs35eZ4+DyHroyTeT3Wq0TsvNk3\nYJWAJoX4UltUmuXWXIq3BzFAkTiVmq0i5xiC+ct24Hp4kv92y8zEVF7yvWqrhmYD\nrP99lfuFGw0FtWUhYNeCTQ==\n-----END PRIVATE KEY-----\n",
-          "client_email": "pilot-644@coherent-sphere-426917-u4.iam.gserviceaccount.com",
-          "client_id": "116631440961368824075",
-          "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-          "token_uri": "https://oauth2.googleapis.com/token",
-          "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-          "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/pilot-644%40coherent-sphere-426917-u4.iam.gserviceaccount.com",
-          "universe_domain": "googleapis.com" 
-    };
-
     const nameInput = document.getElementById('name');
     const ageInput = document.getElementById('age');
     const genderSelect = document.getElementById('gender');
@@ -31,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentVideoIndex = 0;
     let sessionData = [];
     let participantData = {};
-    let recordedBlobs = [];
 
     async function fetchVideos() {
         try {
@@ -42,45 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error fetching videos:', error);
             return [];
-        }
-    }
-
-    async function getAccessToken() {
-        const header = {
-            alg: "RS256",
-            typ: "JWT"
-        };
-
-        const now = Math.floor(Date.now() / 1000);
-        const claimSet = {
-            iss: SERVICE_ACCOUNT_KEY.client_email,
-            scope: "https://www.googleapis.com/auth/drive.file",
-            aud: "https://oauth2.googleapis.com/token",
-            exp: now + 3600,
-            iat: now
-        };
-
-        const privateKey = SERVICE_ACCOUNT_KEY.private_key;
-        const jwt = KJUR.jws.JWS.sign(
-            "RS256",
-            JSON.stringify(header),
-            JSON.stringify(claimSet),
-            privateKey
-        );
-
-        try {
-            const response = await fetch("https://oauth2.googleapis.com/token", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`
-            });
-            const data = await response.json();
-            console.log('Fetched access token:', data);
-            return data.access_token;
-        } catch (error) {
-            console.error('Error fetching access token:', error);
         }
     }
 
@@ -166,11 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(link);
         link.click();
 
-        // Upload all recorded blobs to Google Drive
-        recordedBlobs.forEach((blob, index) => {
-            uploadToDrive(blob, index + 1);
-        });
-
         // Exit fullscreen
         if (document.exitFullscreen) {
             document.exitFullscreen();
@@ -210,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 audioChunks.push(event.data);
                 if (mediaRecorder.state === "inactive") {
                     const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                    recordedBlobs.push(blob); // Store blob for later upload
+                    downloadBlob(blob, `${participantData.name}_${randomizedVideos[currentVideoIndex].split('/').pop()}_${currentVideoIndex + 1}.webm`);
                     console.log('Recorded blob:', blob);
                 }
             };
@@ -225,57 +166,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function uploadToDrive(blob, index) {
-        const fileName = `${participantData.name}_${randomizedVideos[currentVideoIndex].split('/').pop()}_${index}.webm`;
-
-        try {
-            const accessToken = await getAccessToken();
-            const form = new FormData();
-            form.append('metadata', new Blob([JSON.stringify({
-                name: fileName,
-                mimeType: 'audio/webm'
-            })], { type: 'application/json' }));
-            form.append('file', blob);
-
-            const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-                method: 'POST',
-                headers: new Headers({ 'Authorization': `Bearer ${accessToken}` }),
-                body: form
-            });
-            const data = await response.json();
-            console.log('Uploaded file:', data);
-        } catch (error) {
-            console.error('Error uploading file:', error);
-        }
+    function downloadBlob(blob, fileName) {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        console.log('Downloaded file:', fileName);
     }
-
-    async function uploadSampleTextFile() {
-        try {
-            const accessToken = await getAccessToken();
-            const fileContent = 'Hello, this is a sample text file.';
-            const blob = new Blob([fileContent], { type: 'text/plain' });
-
-            const form = new FormData();
-            form.append('metadata', new Blob([JSON.stringify({
-                name: 'sample.txt',
-                mimeType: 'text/plain'
-            })], { type: 'application/json' }));
-            form.append('file', blob);
-
-            const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-                method: 'POST',
-                headers: new Headers({ 'Authorization': `Bearer ${accessToken}` }),
-                body: form
-            });
-            const data = await response.json();
-            console.log('Uploaded sample text file:', data);
-        } catch (error) {
-            console.error('Error uploading sample text file:', error);
-        }
-    }
-
-    // Test the upload by creating and uploading a sample text file
-    uploadSampleTextFile();
 
     // Initialize the client
     startSessionButton.addEventListener('click', startSession);
