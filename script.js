@@ -11,7 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const videoContainer = document.querySelector('.video-container');
     const narrationPopup = document.createElement('div');
     const countdownElement = document.createElement('div');
+    const recordingIndicator = document.createElement('div');
 
+    // Styles for the narration popup
     narrationPopup.style.position = 'fixed';
     narrationPopup.style.top = '50%';
     narrationPopup.style.left = '50%';
@@ -22,9 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
     narrationPopup.style.padding = '20px';
     narrationPopup.style.borderRadius = '10px';
     narrationPopup.style.display = 'none';
+    narrationPopup.style.zIndex = '1000'; // Ensures it appears above other elements
     narrationPopup.textContent = 'Start Narrating';
     document.body.appendChild(narrationPopup);
 
+    // Styles for the countdown element
     countdownElement.style.position = 'fixed';
     countdownElement.style.top = '50%';
     countdownElement.style.left = '50%';
@@ -35,7 +39,22 @@ document.addEventListener('DOMContentLoaded', () => {
     countdownElement.style.padding = '20px';
     countdownElement.style.borderRadius = '10px';
     countdownElement.style.display = 'none';
+    countdownElement.style.zIndex = '1000'; // Ensures it appears above other elements
     document.body.appendChild(countdownElement);
+
+    // Styles for the recording indicator
+    recordingIndicator.style.position = 'fixed';
+    recordingIndicator.style.top = '10px';
+    recordingIndicator.style.left = '10px';
+    recordingIndicator.style.fontSize = '20px';
+    recordingIndicator.style.color = '#fff';
+    recordingIndicator.style.backgroundColor = 'rgba(255, 0, 0, 0.7)';
+    recordingIndicator.style.padding = '10px';
+    recordingIndicator.style.borderRadius = '5px';
+    recordingIndicator.style.display = 'none';
+    recordingIndicator.style.zIndex = '1000'; // Ensures it appears above other elements
+    recordingIndicator.textContent = 'Recording...';
+    document.body.appendChild(recordingIndicator);
 
     let mediaRecorder;
     let audioChunks = [];
@@ -104,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadVideo(videoPath) {
         videoPlayer.src = videoPath;
         videoPlayer.load();
+        videoPlayer.muted = true;
     }
 
     async function replayVideo() {
@@ -189,6 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showNarrationPopup() {
         narrationPopup.style.display = 'block';
+        setTimeout(() => {
+            narrationPopup.style.display = 'none';
+        }, 2000);
     }
 
     async function startRecording() {
@@ -206,11 +229,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         audioChunks = [];
         mediaRecorder.start();
+        recordingIndicator.style.display = 'block'; // Show the recording indicator
     }
 
     function stopRecording() {
         if (mediaRecorder && mediaRecorder.state === "recording") {
             mediaRecorder.stop();
+            recordingIndicator.style.display = 'none'; // Hide the recording indicator
         }
     }
 
@@ -235,3 +260,4 @@ document.addEventListener('DOMContentLoaded', () => {
     nextButton.addEventListener('click', nextVideo);
     videoPlayer.addEventListener('ended', onVideoEnd);
 });
+
