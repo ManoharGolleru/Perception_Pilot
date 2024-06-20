@@ -9,8 +9,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextButton = document.getElementById('next-button');
     const sessionSettings = document.querySelector('.session-settings');
     const videoContainer = document.querySelector('.video-container');
-    const narrationPopup = document.getElementById('narration-popup');
+    const narrationPopup = document.createElement('div');
     const countdownElement = document.createElement('div');
+
+    narrationPopup.style.position = 'fixed';
+    narrationPopup.style.top = '50%';
+    narrationPopup.style.left = '50%';
+    narrationPopup.style.transform = 'translate(-50%, -50%)';
+    narrationPopup.style.fontSize = '32px';
+    narrationPopup.style.color = '#fff';
+    narrationPopup.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    narrationPopup.style.padding = '20px';
+    narrationPopup.style.borderRadius = '10px';
+    narrationPopup.style.display = 'none';
+    narrationPopup.textContent = 'Start Narrating';
+    document.body.appendChild(narrationPopup);
 
     countdownElement.style.position = 'fixed';
     countdownElement.style.top = '50%';
@@ -94,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function replayVideo() {
-        videoPlayer.play();
         showNarrationPopup();
         sessionData.push({
             video: randomizedVideos[currentVideoIndex],
@@ -112,7 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (countdown === 0) {
                 clearInterval(countdownInterval);
                 countdownElement.style.display = 'none';
+                narrationPopup.style.display = 'none';
                 startRecording();
+                videoPlayer.play();
             }
         }, 1000);
     }
@@ -175,9 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showNarrationPopup() {
         narrationPopup.style.display = 'block';
-        setTimeout(() => {
-            narrationPopup.style.display = 'none';
-        }, 2000);
     }
 
     async function startRecording() {
