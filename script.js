@@ -84,29 +84,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function replayVideo() {
-        showNarrationPopup();
-        sessionData.push({
-            video: randomizedVideos[currentVideoIndex],
-            startTime: new Date().toISOString(),
-            action: 'replay',
-        });
+    showNarrationPopup();
+    sessionData.push({
+        video: randomizedVideos[currentVideoIndex],
+        startTime: new Date().toISOString(),
+        action: 'replay',
+    });
 
-        countdownElement.style.display = 'block';
-        let countdown = 5;
+    countdownElement.style.display = 'block';
+    let countdown = 5;
+    countdownElement.textContent = countdown;
+
+    startRecording(); // Start recording when the countdown starts
+
+    const countdownInterval = setInterval(() => {
+        countdown--;
         countdownElement.textContent = countdown;
-
-        const countdownInterval = setInterval(() => {
-            countdown--;
-            countdownElement.textContent = countdown;
-            if (countdown === 0) {
-                clearInterval(countdownInterval);
-                countdownElement.style.display = 'none';
-                narrationPopup.style.display = 'none';
-                startRecording();
-                videoPlayer.play();
-            }
-        }, 1000);
-    }
+        if (countdown === 0) {
+            clearInterval(countdownInterval);
+            countdownElement.style.display = 'none';
+            narrationPopup.style.display = 'none';
+            videoPlayer.play();
+        }
+    }, 1000);
+}
 
     function nextVideo() {
         if (currentVideoIndex < randomizedVideos.length - 1) {
