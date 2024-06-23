@@ -59,12 +59,8 @@ body {
     height: 80%;
 }
 
-
-#narration-popup {
+#narration-popup, #countdown, #recording-indicator {
     position: fixed;
-    top: 30%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     font-size: 32px;
     color: #fff;
     background-color: rgba(0, 0, 0, 0.7);
@@ -74,33 +70,26 @@ body {
     z-index: 10000; /* High z-index to ensure it stays on top */
 }
 
+#narration-popup {
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 #countdown {
-    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 48px;
-    color: #fff;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 20px;
-    border-radius: 10px;
-    display: none;
-    z-index: 10000; /* High z-index to ensure it stays on top */
 }
 
 #recording-indicator {
-    position: fixed;
     top: 10px;
     left: 10px;
     font-size: 20px;
-    color: #fff;
     background-color: rgba(255, 0, 0, 0.7);
-    padding: 10px;
-    border-radius: 5px;
-    display: none;
-    z-index: 10000; /* High z-index to ensure it stays on top */
+    z-index: 10001; /* Higher z-index to ensure it is always on top */
 }
-
 
 .controls {
     display: flex;
@@ -131,3 +120,4 @@ body {
 .fullscreen {
     visibility: visible;
 }
+
