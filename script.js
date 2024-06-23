@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentVideoIndex = 0;
     let sessionData = [];
     let participantData = {};
+    let recordedBlobs = [];
 
     async function fetchVideos() {
         try {
@@ -88,35 +89,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function replayVideo() {
-    showNarrationPopup();
-    sessionData.push({
-        video: randomizedVideos[currentVideoIndex],
-        startTime: new Date().toISOString(),
-        action: 'replay',
-    });
+        showNarrationPopup();
+        sessionData.push({
+            video: randomizedVideos[currentVideoIndex],
+            startTime: new Date().toISOString(),
+            action: 'replay',
+        });
 
-    // Reset the video to the start
-    videoPlayer.pause();
-    videoPlayer.currentTime = 0;
+        // Reset the video to the start
+        videoPlayer.pause();
+        videoPlayer.currentTime = 0;
 
-    countdownElement.style.display = 'block';
-    let countdown = 5;
-    countdownElement.textContent = countdown;
-
-    startRecording(); // Start recording when the countdown starts
-
-    const countdownInterval = setInterval(() => {
-        countdown--;
+        countdownElement.style.display = 'block';
+        let countdown = 5;
         countdownElement.textContent = countdown;
-        if (countdown === 0) {
-            clearInterval(countdownInterval);
-            countdownElement.style.display = 'none';
-            narrationPopup.style.display = 'none';
-            videoPlayer.play();
-        }
-    }, 1000);
+
+        startRecording(); // Start recording when the countdown starts
+
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+            if (countdown === 0) {
+                clearInterval(countdownInterval);
+                countdownElement.style.display = 'none';
+                narrationPopup.style.display = 'none';
+                videoPlayer.play();
+            }
+        }, 1000);
     }
-    
+
     function nextVideo() {
         if (currentVideoIndex < randomizedVideos.length - 1) {
             currentVideoIndex++;
@@ -136,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         stopRecording();
     }
 
-    function endSession() {
+    async function endSession() {
         // Prepare CSV data with headers
         const csvContent = "data:text/csv;charset=utf-8,"
             + "Video,Start Time,End Time,Action\n"
@@ -149,12 +150,27 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(link);
         link.click();
 
+        // Create a ZIP file with all recorded blobs
+        const zip = new JSZip();
+        recordedBlobs.forEach(file => {
+            zip.file(file.name, file.blob);
+        });
+
+        // Generate ZIP file and download
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        const zipLink = document.createElement("a");
+        zipLink.href = URL.createObjectURL(zipBlob);
+        zipLink.download = "recordings.zip";
+        document.body.appendChild(zipLink);
+        zipLink.click();
+        URL.revokeObjectURL(zipLink.href);
+
         // Exit fullscreen
         if (document.exitFullscreen) {
             document.exitFullscreen();
         } else if (document.mozCancelFullScreen) { /* Firefox */
             document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) { /* Chrome, Safari & Opera */
+        } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
             document.webkitExitFullscreen();
         } else if (document.msExitFullscreen) { /* IE/Edge */
             document.msExitFullscreen();
@@ -188,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 audioChunks.push(event.data);
                 if (mediaRecorder.state === "inactive") {
                     const blob = new Blob(audioChunks, { type: 'audio/wav' });
-                    downloadBlob(blob, `${participantData.name}_${randomizedVideos[currentVideoIndex].split('/').pop()}_${currentVideoIndex + 1}.wav`);
+                    recordedBlobs.push({ name: `${participantData.name}_${randomizedVideos[currentVideoIndex].split('/').pop()}_${currentVideoIndex + 1}.wav`, blob });
                     console.log('Recorded blob:', blob);
                 }
             };
@@ -226,3 +242,4 @@ document.addEventListener('DOMContentLoaded', () => {
     nextButton.addEventListener('click', nextVideo);
     videoPlayer.addEventListener('ended', onVideoEnd);
 });
+
