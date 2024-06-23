@@ -174,7 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function downloadAllRecordings() {
         const zip = new JSZip();
         recordedBlobs.forEach((blob, index) => {
-            zip.file(`${participantData.name}_${randomizedVideos[index].split('/').pop()}_${index + 1}.wav`, blob);
+            const videoName = randomizedVideos[index].split('/').pop();
+            const fileName = `${participantData.name}_${videoName}_${index + 1}.wav`;
+            zip.file(fileName, blob);
         });
 
         zip.generateAsync({ type: 'blob' }).then(content => {
@@ -271,6 +273,4 @@ document.addEventListener('DOMContentLoaded', () => {
     nextButton.addEventListener('click', nextVideo);
     videoPlayer.addEventListener('ended', onVideoEnd);
 });
-
-
 
