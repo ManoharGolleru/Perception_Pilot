@@ -59,62 +59,34 @@ body {
     height: 80%;
 }
 
-#narration-popup, #countdown, #recording-indicator {
-    position: fixed;
-    font-size: 32px;
-    color: #fff;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 20px;
-    border-radius: 10px;
-    display: none;
-    z-index: 10000; /* High z-index to ensure it stays on top */
-}
-
-#narration-popup {
-    top: 30%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-#countdown {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 48px;
-}
-
-#recording-indicator {
-    top: 10px;
-    left: 10px;
-    font-size: 20px;
-    background-color: rgba(255, 0, 0, 0.7);
-    z-index: 10001; /* Higher z-index to ensure it is always on top */
-}
-
 .controls {
     display: flex;
-    justify-content: space-between;
-    width: 50%;
+    justify-content: center;
+    align-items: center;
     margin-top: 20px;
 }
 
-.controls button {
+.controls button,
+#narration-popup,
+#countdown,
+#recording-indicator {
     padding: 10px 20px;
+    margin: 0 10px;
     background-color: dodgerblue;
     color: white;
     border: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
     border-radius: 4px;
+    text-align: center;
 }
 
-.controls button:disabled {
-    background-color: #555;
-    cursor: not-allowed;
+#narration-popup,
+#countdown,
+#recording-indicator {
+    display: none;
 }
 
-.controls button:hover:not(:disabled) {
-    background-color: #45a049;
+#recording-indicator {
+    background-color: rgba(255, 0, 0, 0.7);
 }
 
 .fullscreen {
