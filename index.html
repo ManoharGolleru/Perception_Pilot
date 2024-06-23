@@ -19,13 +19,6 @@
         </select>
         <input type="text" id="specialisation" placeholder="Enter Area of Specialisation">
         <button id="start-session">Start Session</button>
-        <div class="microphone-test">
-            <h3>Microphone Test</h3>
-            <button id="start-test-recording">Start Recording</button>
-            <button id="stop-test-recording" disabled>Stop Recording</button>
-            <button id="play-test-recording" disabled>Play Recording</button>
-            <audio id="test-audio" controls></audio>
-        </div>
     </div>
 
     <div class="video-container">
@@ -38,6 +31,20 @@
             <button id="next-button" disabled>Next</button>
         </div>
     </div>
+
+    <!-- Hamburger Menu for Microphone Test -->
+    <div class="hamburger-menu">
+        <input type="checkbox" id="menu-toggle">
+        <label for="menu-toggle" class="menu-icon">&#9776;</label>
+        <div class="menu-content">
+            <h3>Microphone Test</h3>
+            <button id="start-test-recording">Start Recording</button>
+            <button id="stop-test-recording" disabled>Stop Recording</button>
+            <button id="play-test-recording" disabled>Play Recording</button>
+            <audio id="test-audio" controls></audio>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
