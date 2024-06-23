@@ -171,6 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showNarrationPopup() {
         narrationPopup.style.display = 'block';
+        setTimeout(() => {
+            narrationPopup.style.display = 'none';
+        }, 2000);
     }
 
     async function startRecording() {
