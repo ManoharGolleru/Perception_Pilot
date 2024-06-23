@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let participantData = {};
     let testMediaRecorder;
     let testAudioChunks = [];
+    let recordedBlobs = [];
 
     async function fetchVideos() {
         try {
@@ -155,6 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(link);
         link.click();
 
+        // Download all recordings as a single zip file
+        downloadAllRecordings();
+
         // Exit fullscreen
         if (document.exitFullscreen) {
             document.exitFullscreen();
@@ -165,6 +169,20 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (document.msExitFullscreen) { /* IE/Edge */
             document.msExitFullscreen();
         }
+    }
+
+    function downloadAllRecordings() {
+        const zip = new JSZip();
+        recordedBlobs.forEach((blob, index) => {
+            zip.file(`${participantData.name}_${randomizedVideos[index].split('/').pop()}_${index + 1}.wav`, blob);
+        });
+
+        zip.generateAsync({ type: 'blob' }).then(content => {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = 'recordings.zip';
+            link.click();
+        });
     }
 
     function shuffleArray(array) {
@@ -194,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 audioChunks.push(event.data);
                 if (mediaRecorder.state === "inactive") {
                     const blob = new Blob(audioChunks, { type: 'audio/wav' });
-                    downloadBlob(blob, `${participantData.name}_${randomizedVideos[currentVideoIndex].split('/').pop()}_${currentVideoIndex + 1}.wav`);
+                    recordedBlobs.push(blob); // Store blob for later download
                     console.log('Recorded blob:', blob);
                 }
             };
@@ -209,18 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
             mediaRecorder.stop();
             recordingIndicator.style.display = 'none'; // Hide the recording indicator
         }
-    }
-
-    function downloadBlob(blob, fileName) {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        console.log('Downloaded file:', fileName);
     }
 
     // Microphone test functions
@@ -242,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
         testMediaRecorder.start();
         startTestRecordingButton.disabled = true;
         stopTestRecordingButton.disabled = false;
-        
     }
 
     function stopTestRecording() {
@@ -250,7 +255,6 @@ document.addEventListener('DOMContentLoaded', () => {
             testMediaRecorder.stop();
             startTestRecordingButton.disabled = false;
             stopTestRecordingButton.disabled = true;
-           
         }
     }
 
@@ -267,5 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
     nextButton.addEventListener('click', nextVideo);
     videoPlayer.addEventListener('ended', onVideoEnd);
 });
+
 
 
