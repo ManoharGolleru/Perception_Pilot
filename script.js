@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let testMediaRecorder;
     let testAudioChunks = [];
     let recordedBlobs = [];
+    let recordingVideoName = '';
 
     async function fetchVideos() {
         try {
@@ -110,6 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let countdown = 5;
         countdownElement.textContent = countdown;
 
+        recordingVideoName = randomizedVideos[currentVideoIndex].split('/').pop(); // Track the current video name
+
         startRecording(); // Start recording when the countdown starts
 
         const countdownInterval = setInterval(() => {
@@ -146,19 +149,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function endSession() {
         // Prepare CSV data with headers
         const csvContent = "data:text/csv;charset=utf-8,"
+            + `Name,Age,Gender,Specialisation\n${participantData.name},${participantData.age},${participantData.gender},${participantData.specialisation}\n\n`
             + "Video,Start Time,End Time,Action\n"
             + sessionData.map(e => `${e.video},${e.startTime},${e.endTime || ''},${e.action || ''}`).join("\n");
-
+    
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement('a');
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "session_data.csv");
         document.body.appendChild(link);
         link.click();
-
+    
         // Download all recordings as a single zip file
         downloadAllRecordings();
-
+    
         // Exit fullscreen
         if (document.exitFullscreen) {
             document.exitFullscreen();
@@ -171,12 +175,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+
+
     function downloadAllRecordings() {
         const zip = new JSZip();
         recordedBlobs.forEach((blob, index) => {
-            const videoName = randomizedVideos[index].split('/').pop();
-            const fileName = `${participantData.name}_${videoName}_${index + 1}.wav`;
-            zip.file(fileName, blob);
+            const fileName = `${participantData.name}_${blob.videoName}_${index + 1}.wav`;
+            zip.file(fileName, blob.blob);
         });
 
         zip.generateAsync({ type: 'blob' }).then(content => {
@@ -214,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 audioChunks.push(event.data);
                 if (mediaRecorder.state === "inactive") {
                     const blob = new Blob(audioChunks, { type: 'audio/wav' });
-                    recordedBlobs.push(blob); // Store blob for later download
+                    recordedBlobs.push({ blob: blob, videoName: recordingVideoName }); // Store blob and video name for later download
                     console.log('Recorded blob:', blob);
                 }
             };
@@ -273,4 +278,3 @@ document.addEventListener('DOMContentLoaded', () => {
     nextButton.addEventListener('click', nextVideo);
     videoPlayer.addEventListener('ended', onVideoEnd);
 });
-
