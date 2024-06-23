@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const startTestRecordingButton = document.getElementById('start-test-recording');
     const stopTestRecordingButton = document.getElementById('stop-test-recording');
-    const playTestRecordingButton = document.getElementById('play-test-recording');
     const testAudioElement = document.getElementById('test-audio');
 
     let mediaRecorder;
@@ -243,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         testMediaRecorder.start();
         startTestRecordingButton.disabled = true;
         stopTestRecordingButton.disabled = false;
-        playTestRecordingButton.disabled = true;
+        
     }
 
     function stopTestRecording() {
@@ -251,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
             testMediaRecorder.stop();
             startTestRecordingButton.disabled = false;
             stopTestRecordingButton.disabled = true;
-            playTestRecordingButton.disabled = false;
+           
         }
     }
 
