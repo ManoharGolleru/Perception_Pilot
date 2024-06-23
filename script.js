@@ -16,21 +16,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const startTestRecordingButton = document.getElementById('start-test-recording');
     const stopTestRecordingButton = document.getElementById('stop-test-recording');
     const playTestRecordingButton = document.getElementById('play-test-recording');
-    const testAudio = document.getElementById('test-audio');
+    const testAudioElement = document.getElementById('test-audio');
 
     let mediaRecorder;
-    let testMediaRecorder;
     let audioChunks = [];
-    let testAudioChunks = [];
     let randomizedVideos = [];
     let currentVideoIndex = 0;
     let sessionData = [];
     let participantData = {};
-    let recordedBlobs = [];
+    let testMediaRecorder;
+    let testAudioChunks = [];
 
     async function fetchVideos() {
         try {
-            const response = await fetch('videos.json');
+            const response = await fetch('videos.json'); // Ensure videos.json is in the same directory as your HTML file
             const data = await response.json();
             console.log('Fetched videos:', data.videos);
             return data.videos;
@@ -64,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Hide session settings and show video container
         sessionSettings.style.display = 'none';
         videoContainer.classList.add('fullscreen');
         enterFullscreen(videoContainer);
@@ -72,17 +72,18 @@ document.addEventListener('DOMContentLoaded', () => {
         randomizedVideos = shuffleArray(videoClips);
         currentVideoIndex = 0;
 
+        // Preload first video
         loadVideo(randomizedVideos[currentVideoIndex]);
     }
 
     function enterFullscreen(element) {
         if (element.requestFullscreen) {
             element.requestFullscreen();
-        } else if (element.mozRequestFullScreen) {
+        } else if (element.mozRequestFullScreen) { /* Firefox */
             element.mozRequestFullScreen();
-        } else if (element.webkitRequestFullscreen) {
+        } else if (element.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
             element.webkitRequestFullscreen();
-        } else if (element.msRequestFullscreen) {
+        } else if (element.msRequestFullscreen) { /* IE/Edge */
             element.msRequestFullscreen();
         }
     }
@@ -90,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadVideo(videoPath) {
         videoPlayer.src = videoPath;
         videoPlayer.load();
-        videoPlayer.muted = true;
+        videoPlayer.muted = true; // Mute the video player
     }
 
     async function replayVideo() {
@@ -101,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             action: 'replay',
         });
 
+        // Reset the video to the start
         videoPlayer.pause();
         videoPlayer.currentTime = 0;
 
@@ -108,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let countdown = 5;
         countdownElement.textContent = countdown;
 
-        startRecording();
+        startRecording(); // Start recording when the countdown starts
 
         const countdownInterval = setInterval(() => {
             countdown--;
@@ -141,38 +143,27 @@ document.addEventListener('DOMContentLoaded', () => {
         stopRecording();
     }
 
-    async function endSession() {
+    function endSession() {
+        // Prepare CSV data with headers
         const csvContent = "data:text/csv;charset=utf-8,"
             + "Video,Start Time,End Time,Action\n"
             + sessionData.map(e => `${e.video},${e.startTime},${e.endTime || ''},${e.action || ''}`).join("\n");
 
         const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
+        const link = document.createElement('a');
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "session_data.csv");
         document.body.appendChild(link);
         link.click();
 
-        const zip = new JSZip();
-        recordedBlobs.forEach(file => {
-            zip.file(file.name, file.blob);
-        });
-
-        const zipBlob = await zip.generateAsync({ type: "blob" });
-        const zipLink = document.createElement("a");
-        zipLink.href = URL.createObjectURL(zipBlob);
-        zipLink.download = "recordings.zip";
-        document.body.appendChild(zipLink);
-        zipLink.click();
-        URL.revokeObjectURL(zipLink.href);
-
+        // Exit fullscreen
         if (document.exitFullscreen) {
             document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) {
+        } else if (document.mozCancelFullScreen) { /* Firefox */
             document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) {
+        } else if (document.webkitExitFullscreen) { /* Chrome, Safari & Opera */
             document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
+        } else if (document.msExitFullscreen) { /* IE/Edge */
             document.msExitFullscreen();
         }
     }
@@ -204,20 +195,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 audioChunks.push(event.data);
                 if (mediaRecorder.state === "inactive") {
                     const blob = new Blob(audioChunks, { type: 'audio/wav' });
-                    recordedBlobs.push({ name: `${participantData.name}_${randomizedVideos[currentVideoIndex].split('/').pop()}_${currentVideoIndex + 1}.wav`, blob });
+                    downloadBlob(blob, `${participantData.name}_${randomizedVideos[currentVideoIndex].split('/').pop()}_${currentVideoIndex + 1}.wav`);
                     console.log('Recorded blob:', blob);
                 }
             };
         }
         audioChunks = [];
         mediaRecorder.start();
-        recordingIndicator.style.display = 'block';
+        recordingIndicator.style.display = 'block'; // Show the recording indicator
     }
 
     function stopRecording() {
         if (mediaRecorder && mediaRecorder.state === "recording") {
             mediaRecorder.stop();
-            recordingIndicator.style.display = 'none';
+            recordingIndicator.style.display = 'none'; // Hide the recording indicator
         }
     }
 
@@ -233,21 +224,22 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Downloaded file:', fileName);
     }
 
+    // Microphone test functions
     async function startTestRecording() {
-        if (!testMediaRecorder) {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            testMediaRecorder = new MediaRecorder(stream);
-            testMediaRecorder.ondataavailable = event => {
-                testAudioChunks.push(event.data);
-                if (testMediaRecorder.state === "inactive") {
-                    const blob = new Blob(testAudioChunks, { type: 'audio/wav' });
-                    testAudio.src = URL.createObjectURL(blob);
-                    testAudio.play();
-                    console.log('Test recorded blob:', blob);
-                }
-            };
-        }
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        testMediaRecorder = new MediaRecorder(stream);
         testAudioChunks = [];
+
+        testMediaRecorder.ondataavailable = event => {
+            testAudioChunks.push(event.data);
+        };
+
+        testMediaRecorder.onstop = () => {
+            const testBlob = new Blob(testAudioChunks, { type: 'audio/wav' });
+            const testUrl = URL.createObjectURL(testBlob);
+            testAudioElement.src = testUrl;
+        };
+
         testMediaRecorder.start();
         startTestRecordingButton.disabled = true;
         stopTestRecordingButton.disabled = false;
@@ -263,13 +255,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Initialize the microphone test buttons
     startTestRecordingButton.addEventListener('click', startTestRecording);
     stopTestRecordingButton.addEventListener('click', stopTestRecording);
 
+    // Request microphone permission on page load
     requestMicrophonePermission();
+
+    // Initialize the session controls
     startSessionButton.addEventListener('click', startSession);
     replayButton.addEventListener('click', replayVideo);
     nextButton.addEventListener('click', nextVideo);
     videoPlayer.addEventListener('ended', onVideoEnd);
 });
+
 
