@@ -102,19 +102,19 @@ document.addEventListener('DOMContentLoaded', () => {
             startTime: new Date().toISOString(),
             action: 'replay',
         });
-
+    
         // Reset the video to the start
         videoPlayer.pause();
         videoPlayer.currentTime = 0;
-
+    
         countdownElement.style.display = 'block';
         let countdown = 5;
         countdownElement.textContent = countdown;
-
+    
         recordingVideoName = randomizedVideos[currentVideoIndex].split('/').pop(); // Track the current video name
-
+    
         startRecording(); // Start recording when the countdown starts
-
+    
         const countdownInterval = setInterval(() => {
             countdown--;
             countdownElement.textContent = countdown;
@@ -123,6 +123,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 countdownElement.style.display = 'none';
                 narrationPopup.style.display = 'none';
                 videoPlayer.play();
+                
+                // Stop recording after 40 seconds
+                setTimeout(() => {
+                    stopRecording();
+                }, 40000);
             }
         }, 1000);
     }
@@ -138,14 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function onVideoEnd() {
-        sessionData.push({
-            video: randomizedVideos[currentVideoIndex],
-            endTime: new Date().toISOString(),
-        });
-        nextButton.disabled = false;
-        stopRecording();
+    sessionData.push({
+        video: randomizedVideos[currentVideoIndex],
+        endTime: new Date().toISOString(),
+    });
+    nextButton.disabled = false;
     }
-
     function endSession() {
         // Prepare CSV data with headers
         const csvContent = "data:text/csv;charset=utf-8,"
@@ -230,11 +233,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function stopRecording() {
-        if (mediaRecorder && mediaRecorder.state === "recording") {
-            mediaRecorder.stop();
-            recordingIndicator.style.display = 'none'; // Hide the recording indicator
-        }
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        recordingIndicator.style.display = 'none'; // Hide the recording indicator
     }
+    }
+
 
     // Microphone test functions
     async function startTestRecording() {
