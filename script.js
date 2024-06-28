@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let testAudioChunks = [];
     let recordedBlobs = [];
     let recordingVideoName = '';
+    let recordingTimeout;
 
     async function fetchVideos() {
         try {
@@ -102,19 +103,19 @@ document.addEventListener('DOMContentLoaded', () => {
             startTime: new Date().toISOString(),
             action: 'replay',
         });
-    
+
         // Reset the video to the start
         videoPlayer.pause();
         videoPlayer.currentTime = 0;
-    
+
         countdownElement.style.display = 'block';
         let countdown = 5;
         countdownElement.textContent = countdown;
-    
+
         recordingVideoName = randomizedVideos[currentVideoIndex].split('/').pop(); // Track the current video name
-    
+
         startRecording(); // Start recording when the countdown starts
-    
+
         const countdownInterval = setInterval(() => {
             countdown--;
             countdownElement.textContent = countdown;
@@ -123,9 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 countdownElement.style.display = 'none';
                 narrationPopup.style.display = 'none';
                 videoPlayer.play();
-                
+
                 // Stop recording after 40 seconds
-                setTimeout(() => {
+                recordingTimeout = setTimeout(() => {
                     stopRecording();
                 }, 40000);
             }
@@ -133,6 +134,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function nextVideo() {
+        clearTimeout(recordingTimeout); // Clear the timeout to stop recording early if next is pressed
+        stopRecording();
+
         if (currentVideoIndex < randomizedVideos.length - 1) {
             currentVideoIndex++;
             loadVideo(randomizedVideos[currentVideoIndex]);
@@ -143,29 +147,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function onVideoEnd() {
-    sessionData.push({
-        video: randomizedVideos[currentVideoIndex],
-        endTime: new Date().toISOString(),
-    });
-    nextButton.disabled = false;
+        sessionData.push({
+            video: randomizedVideos[currentVideoIndex],
+            endTime: new Date().toISOString(),
+        });
+        nextButton.disabled = false;
     }
+
     function endSession() {
         // Prepare CSV data with headers
         const csvContent = "data:text/csv;charset=utf-8,"
             + `Name,Age,Gender,Specialisation\n${participantData.name},${participantData.age},${participantData.gender},${participantData.specialisation}\n\n`
             + "Video,Start Time,End Time,Action\n"
             + sessionData.map(e => `${e.video},${e.startTime},${e.endTime || ''},${e.action || ''}`).join("\n");
-    
+
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement('a');
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "session_data.csv");
         document.body.appendChild(link);
         link.click();
-    
+
         // Download all recordings as a single zip file
         downloadAllRecordings();
-    
+
         // Exit fullscreen
         if (document.exitFullscreen) {
             document.exitFullscreen();
@@ -177,8 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.msExitFullscreen();
         }
     }
-
-
 
     function downloadAllRecordings() {
         const zip = new JSZip();
@@ -233,12 +236,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function stopRecording() {
-    if (mediaRecorder && mediaRecorder.state === "recording") {
-        mediaRecorder.stop();
-        recordingIndicator.style.display = 'none'; // Hide the recording indicator
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+            recordingIndicator.style.display = 'none'; // Hide the recording indicator
+        }
     }
-    }
-
 
     // Microphone test functions
     async function startTestRecording() {
@@ -282,3 +284,4 @@ document.addEventListener('DOMContentLoaded', () => {
     nextButton.addEventListener('click', nextVideo);
     videoPlayer.addEventListener('ended', onVideoEnd);
 });
+
