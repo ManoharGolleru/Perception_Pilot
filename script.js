@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ageInput = document.getElementById('age');
     const genderSelect = document.getElementById('gender');
     const specialisationInput = document.getElementById('specialisation');
+    const experienceInput = document.getElementById('experience');
     const startSessionButton = document.getElementById('start-session');
     const videoPlayer = document.getElementById('video-player');
     const replayButton = document.getElementById('replay-button');
@@ -58,9 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
             age: ageInput.value,
             gender: genderSelect.value,
             specialisation: specialisationInput.value,
+            experience: experienceInput.value,
         };
 
-        if (!participantData.name || !participantData.age || !participantData.gender || !participantData.specialisation) {
+        if (!participantData.name || !participantData.age || !participantData.gender || !participantData.specialisation || !participantData.experience) {
             alert('Please fill in all fields');
             return;
         }
@@ -157,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function endSession() {
         // Prepare CSV data with headers
         const csvContent = "data:text/csv;charset=utf-8,"
-            + `Name,Age,Gender,Specialisation\n${participantData.name},${participantData.age},${participantData.gender},${participantData.specialisation}\n\n`
+            + `Name,Age,Gender,Specialisation,Experience\n${participantData.name},${participantData.age},${participantData.gender},${participantData.specialisation},${participantData.experience}\n\n`
             + "Video,Start Time,End Time,Action\n"
             + sessionData.map(e => `${e.video},${e.startTime},${e.endTime || ''},${e.action || ''}`).join("\n");
 
