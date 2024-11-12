@@ -1,3 +1,10 @@
+# Ergonomic Recommendation System Architecture
+
+This repository contains the architecture for an ergonomic recommendation system that leverages computer vision and large language models to provide personalized ergonomic advice.
+
+## **Architecture Diagram**
+
+```mermaid
 graph LR
     A[Camera] --> B[Computer Vision Model]
     B --> C[Large Language Model]
@@ -20,3 +27,4 @@ graph LR
         C --> C2
         C --> C3
     end
+```mermaid
