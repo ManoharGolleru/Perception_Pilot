@@ -27,4 +27,3 @@ graph LR
         C --> C2
         C --> C3
     end
-```mermaid
