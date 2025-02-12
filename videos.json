@@ -1,4 +1,7 @@
 {
+    "videos_pauses": [
+        "Videos_pauses/test.mp4"
+    ],
     "videos": [
         "video_clips/159_180.mp4",
         "video_clips/288_310.mp4",
