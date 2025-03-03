@@ -78,9 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Randomize no_pause videos order
     noPauseVideos = randomizeArray(noPauseVideos);
 
-    // For admin, always show the next button (skip available in both phases).
+    // For admin: always show and enable the Next button.
     // For non-admin, hide it during the no_pause phase.
-    nextButton.style.display = isAdmin ? 'inline-block' : 'none';
+    if (isAdmin) {
+      nextButton.style.display = 'inline-block';
+      nextButton.disabled = false;
+    } else {
+      nextButton.style.display = 'none';
+    }
 
     // Wait 5 seconds before starting the no_pause phase
     setTimeout(startNoPausePhase, 5000);
@@ -131,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function startPausePhase() {
     mode = 'pause';
     currentPauseIndex = 0;
-    // Always show next button during pause phase
+    // Always show the next button during pause phase (admin and non-admin)
     nextButton.style.display = 'inline-block';
     playPausePair();
   }
@@ -162,12 +167,14 @@ document.addEventListener('DOMContentLoaded', () => {
     pauseImage.style.display = 'block';
     questionText.innerText = pair.question || 'Please answer the question regarding the image above.';
     questionText.style.display = 'block';
-    // Enable next button for user to proceed in pause phase
-    nextButton.disabled = false;
+    // Enable next button for user to proceed in pause phase (for non-admin users)
+    if (!isAdmin) {
+      nextButton.disabled = false;
+    }
   }
 
-  // Next button handler
-  // - For admin: allows skipping in both no_pause and pause phases.
+  // Next button handler:
+  // - For admin: allows skipping immediately in both no_pause and pause phases.
   // - For non-admin: works only in pause phase.
   nextButton.addEventListener('click', () => {
     // If admin, allow skipping immediately in both phases.
@@ -195,4 +202,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
   startSessionButton.addEventListener('click', startSession);
 });
-
