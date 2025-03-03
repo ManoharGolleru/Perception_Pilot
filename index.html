@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Only one input for Subject ID -->
+  <!-- Session settings with a single Subject ID input -->
   <div class="session-settings">
     <input type="text" id="subject-id" placeholder="Enter Subject ID" required />
     <button id="start-session">Start Session</button>
@@ -15,12 +15,13 @@
 
   <!-- Video container -->
   <div class="video-container">
-    <!-- This question div will appear during the pause phase -->
+    <!-- Question text appears in the pause phase -->
     <div id="question-text" style="display:none; position:absolute; top:10px; width:100%; text-align:center; font-size:24px; z-index: 1000;"></div>
     <video id="video-player" controls></video>
-    <!-- This image will be shown after pause videos end -->
+    <!-- Image displayed in pause phase -->
     <img id="pause-image" src="" alt="Pause Image" style="display:none; width:80%; height:80%;" />
     <div class="controls">
+      <!-- Next button: Visible for admin always, and for non-admin only in pause phase -->
       <button id="next-button" disabled>Next</button>
     </div>
   </div>
