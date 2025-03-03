@@ -1,137 +1,144 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    const nameInput = document.getElementById('name');
-    const ageInput = document.getElementById('age');
-    const genderSelect = document.getElementById('gender');
-    const specialisationInput = document.getElementById('specialisation');
-    const experienceInput = document.getElementById('experience');
-    const startSessionButton = document.getElementById('start-session');
-    const videoPlayer = document.getElementById('video-player');
-    const replayButton = document.getElementById('replay-button');
-    const nextButton = document.getElementById('next-button');
-    const sessionSettings = document.querySelector('.session-settings');
-    const videoContainer = document.querySelector('.video-container');
-    const narrationPopup = document.getElementById('narration-popup');
-    const countdownElement = document.getElementById('countdown');
-    const recordingIndicator = document.getElementById('recording-indicator');
+document.addEventListener('DOMContentLoaded', () => {
+  // Elements
+  const subjectInput = document.getElementById('subject-id');
+  const startSessionButton = document.getElementById('start-session');
+  const videoPlayer = document.getElementById('video-player');
+  const nextButton = document.getElementById('next-button');
+  const questionText = document.getElementById('question-text');
+  const pauseImage = document.getElementById('pause-image');
+  const sessionSettings = document.querySelector('.session-settings');
+  const videoContainer = document.querySelector('.video-container');
 
-    let mediaRecorder;
-    let audioChunks = [];
-    let videosPauses = [];
-    let videos = [];
-    let allVideos = [];
-    let currentVideoIndex = 0;
-    let isPausedVideo = false;
+  // Data arrays (populated from videos.json)
+  let noPauseVideos = [];
+  let pausePairs = [];
+  let mode = 'no_pause'; // 'no_pause' or 'pause'
+  let currentNoPauseIndex = 0;
+  let currentPauseIndex = 0;
 
-    async function fetchVideos() {
-        try {
-            const response = await fetch('videos.json');
-            const data = await response.json();
-            videosPauses = data.videos_pauses || []; // Special test video
-            videos = data.videos || []; // Other videos
+  // Fetch the videos.json file
+  async function fetchVideos() {
+    try {
+      const response = await fetch('videos.json');
+      const data = await response.json();
+      noPauseVideos = data.no_pause_videos || [];
+      pausePairs = data.pause_pairs || [];
+    } catch (error) {
+      console.error('Error fetching videos:', error);
+    }
+  }
 
-            // Ensure test.mp4 plays first
-            return [...videosPauses, ...videos];
-        } catch (error) {
-            console.error('Error fetching videos:', error);
-            return [];
-        }
+  // Randomize an array
+  function randomizeArray(array) {
+    return array.sort(() => Math.random() - 0.5);
+  }
+
+  // When start session is clicked
+  async function startSession() {
+    const subjectId = subjectInput.value.trim();
+    if (!subjectId) {
+      alert('Subject ID is required');
+      return;
     }
 
-    function loadVideo(videoPath) {
-        videoPlayer.src = videoPath;
-        videoPlayer.load();
-        videoPlayer.muted = false;
+    // Hide settings and go fullscreen
+    sessionSettings.style.display = 'none';
+    videoContainer.classList.add('fullscreen');
+    enterFullscreen(videoContainer);
 
-        // Check if the video is the test.mp4 from Videos_pauses/
-        isPausedVideo = videoPath.includes("Videos_pauses");
-        setupStopLogic();
+    await fetchVideos();
+
+    // Randomize no_pause videos order
+    noPauseVideos = randomizeArray(noPauseVideos);
+
+    // Wait 5 seconds then start the no_pause phase
+    setTimeout(startNoPausePhase, 5000);
+  }
+
+  // Fullscreen function
+  function enterFullscreen(element) {
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.mozRequestFullScreen) {
+      element.mozRequestFullScreen();
+    } else if (element.webkitRequestFullscreen) {
+      element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) {
+      element.msRequestFullscreen();
     }
+  }
 
-    function setupStopLogic() {
-        if (!isPausedVideo) return;
+  // Start no_pause phase: play randomized videos with a 3-second delay
+  function startNoPausePhase() {
+    mode = 'no_pause';
+    currentNoPauseIndex = 0;
+    playNoPauseVideo();
+  }
 
-        videoPlayer.addEventListener('timeupdate', function stopAt10Sec() {
-            if (Math.floor(videoPlayer.currentTime) === 10) {
-                videoPlayer.pause();
-                videoPlayer.removeEventListener('timeupdate', stopAt10Sec);
-
-                // Move to next video after stopping
-                setTimeout(nextVideo, 1000);
-            }
-        });
+  function playNoPauseVideo() {
+    if (currentNoPauseIndex >= noPauseVideos.length) {
+      // Finished no_pause videos; start pause phase
+      startPausePhase();
+      return;
     }
+    videoPlayer.src = noPauseVideos[currentNoPauseIndex];
+    videoPlayer.load();
+    videoPlayer.play();
 
-    async function startSession() {
-        participantData = {
-            name: nameInput.value,
-            age: ageInput.value,
-            gender: genderSelect.value,
-            specialisation: specialisationInput.value,
-            experience: experienceInput.value,
-        };
+    // After video ends, wait 3 seconds then play next video
+    videoPlayer.onended = () => {
+      setTimeout(() => {
+        currentNoPauseIndex++;
+        playNoPauseVideo();
+      }, 3000);
+    };
+  }
 
-        if (!participantData.name || !participantData.age || !participantData.gender || !participantData.specialisation || !participantData.experience) {
-            alert('Please fill in all fields');
-            return;
-        }
+  // Start pause phase: for each pair, play video then show image with question
+  function startPausePhase() {
+    mode = 'pause';
+    currentPauseIndex = 0;
+    playPausePair();
+  }
 
-        // Hide session settings and show video container
-        sessionSettings.style.display = 'none';
-        videoContainer.classList.add('fullscreen');
-        enterFullscreen(videoContainer);
-
-        allVideos = await fetchVideos();
-        currentVideoIndex = 0;
-
-        // Load and play the first video (test.mp4 first)
-        loadVideo(allVideos[currentVideoIndex]);
+  function playPausePair() {
+    if (currentPauseIndex >= pausePairs.length) {
+      alert('Session complete');
+      return;
     }
+    const currentPair = pausePairs[currentPauseIndex];
+    videoPlayer.src = currentPair.video;
+    videoPlayer.load();
+    videoPlayer.play();
 
-    function enterFullscreen(element) {
-        if (element.requestFullscreen) {
-            element.requestFullscreen();
-        } else if (element.mozRequestFullScreen) {
-            element.mozRequestFullScreen();
-        } else if (element.webkitRequestFullscreen) {
-            element.webkitRequestFullscreen();
-        } else if (element.msRequestFullscreen) {
-            element.msRequestFullscreen();
-        }
+    videoPlayer.onended = () => {
+      showPauseImageAndQuestion(currentPair);
+    };
+  }
+
+  function showPauseImageAndQuestion(pair) {
+    // Display the image
+    pauseImage.src = pair.image;
+    pauseImage.style.display = 'block';
+    // Display the question above the video
+    questionText.innerText = pair.question || 'Please answer the question regarding the image above.';
+    questionText.style.display = 'block';
+    // Enable the Next button for the user to proceed
+    nextButton.disabled = false;
+  }
+
+  // Next button for pause phase
+  nextButton.addEventListener('click', () => {
+    if (mode === 'pause') {
+      // Hide the pause image and question
+      pauseImage.style.display = 'none';
+      questionText.style.display = 'none';
+      nextButton.disabled = true;
+      currentPauseIndex++;
+      playPausePair();
     }
+  });
 
-    function nextVideo() {
-        if (currentVideoIndex < allVideos.length - 1) {
-            currentVideoIndex++;
-            loadVideo(allVideos[currentVideoIndex]);
-        }
-    }
-
-    function onVideoEnd() {
-        nextButton.disabled = false;
-    }
-
-    async function requestMicrophonePermission() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            stream.getTracks().forEach(track => track.stop());
-            console.log('Microphone permission granted');
-        } catch (error) {
-            console.error('Microphone permission denied', error);
-            alert('Microphone permission is required to proceed with the experiment.');
-        }
-    }
-
-    function shuffleArray(array) {
-        return array.sort(() => Math.random() - 0.5);
-    }
-
-    // Initialize the session controls
-    startSessionButton.addEventListener('click', startSession);
-    replayButton.addEventListener('click', () => videoPlayer.play());
-    nextButton.addEventListener('click', nextVideo);
-    videoPlayer.addEventListener('ended', onVideoEnd);
-
-    // Request microphone permission on page load
-    requestMicrophonePermission();
+  startSessionButton.addEventListener('click', startSession);
 });
 
