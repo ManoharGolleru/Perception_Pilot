@@ -1,17 +1,44 @@
 {
-    "videos_pauses": [
-        "Videos_pauses/test.mp4"
-    ],
-    "videos": [
-        "video_clips/159_180.mp4",
-        "video_clips/288_310.mp4",
-        "video_clips/583_599.mp4",
-        "video_clips/902_920.mp4",
-        "video_clips/6935_6960.mp4",
-        "video_clips/616_640.mp4",
-        "video_clips/675_694.mp4",
-        "video_clips/380_405.mp4",
-        "video_clips/134_160.mp4",
-        "video_clips/211_236.mp4"
-    ]
+  "no_pause_videos": [
+    "Videos_no_pause_30/EX-10_30_WOP.mp4",
+    "Videos_no_pause_30/EX-11_30_WOP.mp4",
+    "Videos_no_pause_30/EX-13_30_WOP.mp4",
+    "Videos_no_pause_30/EX-3_30_WOP.mp4",
+    "Videos_no_pause_30/EX-4_30_WOP.mp4",
+    "Videos_no_pause_30/EX-5_30_WOP.mp4",
+    "Videos_no_pause_30/EX-7_30_WOP.mp4",
+    "Videos_no_pause_30/EX-9_30_WOP.mp4"
+  ],
+  "pause_pairs": [
+    {
+      "video": "Videos_with_pauses_pics/2AT_0_09_CVS.mp4",
+      "image": "Videos_with_pauses_pics/2AT_0_0_9_CVS.jpg",
+      "question": "What do you notice in the image?"
+    },
+    {
+      "video": "Videos_with_pauses_pics/2AT_0_41_Ann.mp4",
+      "image": "Videos_with_pauses_pics/2AT_0_41_Ann.jpg",
+      "question": "Please describe your first impression."
+    },
+    {
+      "video": "Videos_with_pauses_pics/EX_1_0_34_Ann.mp4",
+      "image": "Videos_with_pauses_pics/EX_1_0_34_Ann.jpg",
+      "question": "What details stand out in the image?"
+    },
+    {
+      "video": "Videos_with_pauses_pics/EX_2_0_49_Ann.mp4",
+      "image": "Videos_with_pauses_pics/EX_2_0_49_Ann.jpg",
+      "question": "How does the image make you feel?"
+    },
+    {
+      "video": "Videos_with_pauses_pics/EX_2_1_57_CVS.mp4",
+      "image": "Videos_with_pauses_pics/EX_2_1_57_CVS.jpg",
+      "question": "What is the most prominent feature in the image?"
+    },
+    {
+      "video": "Videos_with_pauses_pics/EX_8_0_30_Ann.mp4",
+      "image": "Videos_with_pauses_pics/EX_8_0_30_Ann.jpg",
+      "question": "Can you identify any anomalies in the image?"
+    }
+  ]
 }
