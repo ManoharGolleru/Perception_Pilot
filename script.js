@@ -9,14 +9,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const sessionSettings = document.querySelector('.session-settings');
   const videoContainer = document.querySelector('.video-container');
 
-  // Data arrays (populated from videos.json)
+  // Data arrays and state
   let noPauseVideos = [];
   let pausePairs = [];
   let mode = 'no_pause'; // 'no_pause' or 'pause'
   let currentNoPauseIndex = 0;
   let currentPauseIndex = 0;
+  let isAdmin = false;
+  let noPauseTimeout;
 
-  // Fetch the videos.json file
+  // Preload videos and images on page load to reduce buffering
+  async function preloadVideos() {
+    try {
+      const response = await fetch('videos.json');
+      const data = await response.json();
+      // Preload no_pause videos
+      data.no_pause_videos.forEach(src => {
+        const vid = document.createElement('video');
+        vid.src = src;
+        vid.preload = "auto";
+      });
+      // Preload pause pairs videos and images
+      data.pause_pairs.forEach(pair => {
+        const vid = document.createElement('video');
+        vid.src = pair.video;
+        vid.preload = "auto";
+        const img = new Image();
+        img.src = pair.image;
+      });
+    } catch (error) {
+      console.error("Error preloading videos:", error);
+    }
+  }
+  preloadVideos();
+
+  // Fetch video data when starting session
   async function fetchVideos() {
     try {
       const response = await fetch('videos.json');
@@ -28,20 +55,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Randomize an array
+  // Utility: Randomize an array
   function randomizeArray(array) {
     return array.sort(() => Math.random() - 0.5);
   }
 
-  // When start session is clicked
   async function startSession() {
     const subjectId = subjectInput.value.trim();
     if (!subjectId) {
       alert('Subject ID is required');
       return;
     }
+    isAdmin = (subjectId.toLowerCase() === 'admin');
 
-    // Hide settings and go fullscreen
+    // Hide session settings and enter fullscreen
     sessionSettings.style.display = 'none';
     videoContainer.classList.add('fullscreen');
     enterFullscreen(videoContainer);
@@ -51,11 +78,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Randomize no_pause videos order
     noPauseVideos = randomizeArray(noPauseVideos);
 
-    // Wait 5 seconds then start the no_pause phase
+    // For admin, always show the next button (skip available in both phases).
+    // For non-admin, hide it during the no_pause phase.
+    nextButton.style.display = isAdmin ? 'inline-block' : 'none';
+
+    // Wait 5 seconds before starting the no_pause phase
     setTimeout(startNoPausePhase, 5000);
   }
 
-  // Fullscreen function
+  // Fullscreen helper function
   function enterFullscreen(element) {
     if (element.requestFullscreen) {
       element.requestFullscreen();
@@ -68,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Start no_pause phase: play randomized videos with a 3-second delay
+  // Start the no_pause phase: play videos with a 3-second delay between them
   function startNoPausePhase() {
     mode = 'no_pause';
     currentNoPauseIndex = 0;
@@ -85,19 +116,23 @@ document.addEventListener('DOMContentLoaded', () => {
     videoPlayer.load();
     videoPlayer.play();
 
-    // After video ends, wait 3 seconds then play next video
+    // Clear any previous onended callback
+    videoPlayer.onended = null;
+    // When a video ends, set a 3-second delay before moving to the next
     videoPlayer.onended = () => {
-      setTimeout(() => {
+      noPauseTimeout = setTimeout(() => {
         currentNoPauseIndex++;
         playNoPauseVideo();
       }, 3000);
     };
   }
 
-  // Start pause phase: for each pair, play video then show image with question
+  // Start pause phase: for each video/image pair, play video then show image with question
   function startPausePhase() {
     mode = 'pause';
     currentPauseIndex = 0;
+    // Always show next button during pause phase
+    nextButton.style.display = 'inline-block';
     playPausePair();
   }
 
@@ -107,35 +142,54 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     const currentPair = pausePairs[currentPauseIndex];
+    // Hide pause image and question text if visible
+    pauseImage.style.display = 'none';
+    questionText.style.display = 'none';
+    // Play the video for the current pair
     videoPlayer.src = currentPair.video;
     videoPlayer.load();
     videoPlayer.play();
 
+    // Clear any previous onended callback
+    videoPlayer.onended = null;
     videoPlayer.onended = () => {
       showPauseImageAndQuestion(currentPair);
     };
   }
 
   function showPauseImageAndQuestion(pair) {
-    // Display the image
     pauseImage.src = pair.image;
     pauseImage.style.display = 'block';
-    // Display the question above the video
     questionText.innerText = pair.question || 'Please answer the question regarding the image above.';
     questionText.style.display = 'block';
-    // Enable the Next button for the user to proceed
+    // Enable next button for user to proceed in pause phase
     nextButton.disabled = false;
   }
 
-  // Next button for pause phase
+  // Next button handler
+  // - For admin: allows skipping in both no_pause and pause phases.
+  // - For non-admin: works only in pause phase.
   nextButton.addEventListener('click', () => {
-    if (mode === 'pause') {
-      // Hide the pause image and question
-      pauseImage.style.display = 'none';
-      questionText.style.display = 'none';
-      nextButton.disabled = true;
-      currentPauseIndex++;
-      playPausePair();
+    // If admin, allow skipping immediately in both phases.
+    if (isAdmin) {
+      clearTimeout(noPauseTimeout);
+      videoPlayer.onended = null;
+      videoPlayer.pause();
+
+      if (mode === 'no_pause') {
+        currentNoPauseIndex++;
+        playNoPauseVideo();
+      } else if (mode === 'pause') {
+        currentPauseIndex++;
+        playPausePair();
+      }
+    } else {
+      // For non-admin users, next is only active during the pause phase.
+      if (mode === 'pause') {
+        nextButton.disabled = true;
+        currentPauseIndex++;
+        playPausePair();
+      }
     }
   });
 
