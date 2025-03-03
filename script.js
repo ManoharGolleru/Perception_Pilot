@@ -117,6 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
       startPausePhase();
       return;
     }
+    // Ensure the video element is visible and hide the pause image/question
+    videoPlayer.style.display = 'block';
+    pauseImage.style.display = 'none';
+    questionText.style.display = 'none';
+
     videoPlayer.src = noPauseVideos[currentNoPauseIndex];
     videoPlayer.load();
     videoPlayer.play();
@@ -147,9 +152,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     const currentPair = pausePairs[currentPauseIndex];
-    // Hide pause image and question text if visible
+    // Ensure the video element is visible and hide the image and question
+    videoPlayer.style.display = 'block';
     pauseImage.style.display = 'none';
     questionText.style.display = 'none';
+
     // Play the video for the current pair
     videoPlayer.src = currentPair.video;
     videoPlayer.load();
@@ -163,11 +170,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function showPauseImageAndQuestion(pair) {
+    // Hide the video element so its paused frame is not visible
+    videoPlayer.style.display = 'none';
+
+    // Display the image and question in its place
     pauseImage.src = pair.image;
     pauseImage.style.display = 'block';
     questionText.innerText = pair.question || 'Please answer the question regarding the image above.';
     questionText.style.display = 'block';
-    // Enable next button for user to proceed in pause phase (for non-admin users)
+
+    // For non-admin users, enable the Next button for manual proceeding
     if (!isAdmin) {
       nextButton.disabled = false;
     }
@@ -202,3 +214,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   startSessionButton.addEventListener('click', startSession);
 });
+
