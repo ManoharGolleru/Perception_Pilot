@@ -17,6 +17,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentPauseIndex = 0;
   let isAdmin = false;
   let noPauseTimeout;
+  
+  // Logging variables
+  let logData = []; // Each entry: { subjectID, phase, event, media, question, reactionTime }
+  let subjectIDValue = "";
+  let pauseImageShownTime = null;
+  let currentPausePair = null;
 
   // Preload videos and images on page load to reduce buffering
   async function preloadVideos() {
@@ -66,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Subject ID is required');
       return;
     }
+    subjectIDValue = subjectId;
     isAdmin = (subjectId.toLowerCase() === 'admin');
 
     // Hide session settings and enter fullscreen
@@ -77,6 +84,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Randomize no_pause videos order
     noPauseVideos = randomizeArray(noPauseVideos);
+
+    // Log the order of no_pause videos as they will be presented
+    noPauseVideos.forEach(videoSrc => {
+      logData.push({
+        subjectID: subjectIDValue,
+        phase: "no_pause",
+        event: "video_played",
+        media: videoSrc,
+        question: "",
+        reactionTime: ""
+      });
+    });
 
     // For admin: always show and enable the Next button.
     // For non-admin, hide it during the no_pause phase.
@@ -149,9 +168,13 @@ document.addEventListener('DOMContentLoaded', () => {
   function playPausePair() {
     if (currentPauseIndex >= pausePairs.length) {
       alert('Session complete');
+      downloadLogFile();
       return;
     }
     const currentPair = pausePairs[currentPauseIndex];
+    // Store the current pause pair for logging reaction time
+    currentPausePair = currentPair;
+
     // Ensure the video element is visible and hide the image and question
     videoPlayer.style.display = 'block';
     pauseImage.style.display = 'none';
@@ -179,6 +202,9 @@ document.addEventListener('DOMContentLoaded', () => {
     questionText.innerText = pair.question || 'Please answer the question regarding the image above.';
     questionText.style.display = 'block';
 
+    // Record the time when the image is shown for reaction time calculation
+    pauseImageShownTime = Date.now();
+
     // For non-admin users, enable the Next button for manual proceeding
     if (!isAdmin) {
       nextButton.disabled = false;
@@ -189,6 +215,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // - For admin: allows skipping immediately in both no_pause and pause phases.
   // - For non-admin: works only in pause phase.
   nextButton.addEventListener('click', () => {
+    if (mode === 'pause' && pauseImageShownTime !== null) {
+      // Calculate reaction time for pause event
+      const reactionTime = Date.now() - pauseImageShownTime;
+      // Log the pause event with image details and reaction time
+      logData.push({
+        subjectID: subjectIDValue,
+        phase: "pause",
+        event: "image_shown",
+        media: currentPausePair.image,
+        question: currentPausePair.question,
+        reactionTime: reactionTime
+      });
+      // Reset the timer variable
+      pauseImageShownTime = null;
+    }
+
     // If admin, allow skipping immediately in both phases.
     if (isAdmin) {
       clearTimeout(noPauseTimeout);
@@ -212,6 +254,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Download the log file as a CSV
+  function downloadLogFile() {
+    // CSV header
+    let csvContent = "subjectID,phase,event,media,question,reactionTime\n";
+    // Add each log row
+    logData.forEach(row => {
+      // Escape any commas in text fields if needed
+      const subject = row.subjectID;
+      const phase = row.phase;
+      const event = row.event;
+      const media = row.media;
+      const question = row.question.replace(/,/g, ";"); // replace commas in question
+      const reactionTime = row.reactionTime;
+      csvContent += `${subject},${phase},${event},${media},${question},${reactionTime}\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = `${subjectIDValue}_log.csv`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  }
+
   startSessionButton.addEventListener('click', startSession);
 });
+
 
