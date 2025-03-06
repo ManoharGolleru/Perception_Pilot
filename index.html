@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Video Experiment</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- JSZip for zipping files -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
 </head>
 <body>
   <!-- Session settings with a single Subject ID input -->
@@ -16,7 +18,7 @@
   <!-- Video container -->
   <div class="video-container">
     <!-- Question text appears in the pause phase -->
-    <div id="question-text" style="display:none; position:absolute; top:40px; width:100%; text-align:center; font-size:48px; z-index:1000;"></div>
+    <div id="question-text" style="display:none; position:absolute; top:10px; width:100%; text-align:center; font-size:24px; z-index:1000;"></div>
     <video id="video-player" controls></video>
     <!-- Image displayed in pause phase -->
     <img id="pause-image" src="" alt="Pause Image" style="display:none; width:80%; height:80%;" />
@@ -24,11 +26,14 @@
       <!-- Next button: Visible for admin always, and for non-admin only in pause phase -->
       <button id="next-button" disabled>Next</button>
     </div>
+    <!-- Audio indicator -->
+    <div id="audio-indicator" style="position:absolute; bottom:10px; right:10px; font-size:14px; color:red; display:none;">
+      &#9679; Listening...
+    </div>
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
-
 
 
