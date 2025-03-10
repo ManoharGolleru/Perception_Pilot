@@ -13,33 +13,39 @@
     {
       "video": "Videos_with_pauses_pics/2AT_0_09_CVS.mp4",
       "image": "Videos_with_pauses_pics/2AT_0_0_9_CVS.jpg",
-      "question": "Is the critical view of safety obtained? Why or why not?"
+      "question": "What do you notice in the image?"
     },
     {
       "video": "Videos_with_pauses_pics/2AT_0_41_Ann.mp4",
       "image": "Videos_with_pauses_pics/2AT_0_41_Ann.jpg",
-      "question": "Please identify the annotated landmarks in the scene"
+      "question": "Please describe your first impression."
     },
     {
       "video": "Videos_with_pauses_pics/EX_1_0_34_Ann.mp4",
       "image": "Videos_with_pauses_pics/EX_1_0_34_Ann.jpg",
-      "question": "Please identify the annotated landmarks in the scene"
+      "question": "What details stand out in the image?"
     },
     {
       "video": "Videos_with_pauses_pics/EX_2_0_49_Ann.mp4",
       "image": "Videos_with_pauses_pics/EX_2_0_49_Ann.jpg",
-      "question": "Please identify the annotated landmarks in the scene"
+      "question": "How does the image make you feel?"
     },
     {
       "video": "Videos_with_pauses_pics/EX_2_1_57_CVS.mp4",
       "image": "Videos_with_pauses_pics/EX_2_1_57_CVS.jpg",
-      "question": "Is the critical view of safety obtained? Why or why not?"
+      "question": "What is the most prominent feature in the image?"
     },
     {
       "video": "Videos_with_pauses_pics/EX_8_0_30_Ann.mp4",
       "image": "Videos_with_pauses_pics/EX_8_0_30_Ann.jpg",
-      "question": "Please identify the annotated landmarks in the scene"
+      "question": "Can you identify any anomalies in the image?"
     }
+  ],
+  "questionnaire_questions": [
+    "How would you rate your overall experience?",
+    "What did you like most about the experiment?",
+    "What improvements would you suggest?",
+    "Any additional feedback?"
   ]
 }
 
