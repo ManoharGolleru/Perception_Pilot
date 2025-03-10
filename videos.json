@@ -42,10 +42,10 @@
     }
   ],
   "questionnaire_questions": [
-    "How would you rate your overall experience?",
-    "What did you like most about the experiment?",
-    "What improvements would you suggest?",
-    "Any additional feedback?"
+    "Can you describe how you visually scanned the scene in white light",
+    "Can you describe how you visually scanned the scene in ICG",
+    "What do you perceive as the potential role of AI in guiding gaze patterns during surgical procedures",
+    "What feature(s) would you find useful from an AI model if you are using one during a surgical task for viewing"
   ]
 }
 
