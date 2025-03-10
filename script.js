@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Elements
+  // Elements for experiment
   const subjectInput = document.getElementById('subject-id');
   const startSessionButton = document.getElementById('start-session');
   const videoPlayer = document.getElementById('video-player');
@@ -9,42 +9,53 @@ document.addEventListener('DOMContentLoaded', () => {
   const sessionSettings = document.querySelector('.session-settings');
   const videoContainer = document.querySelector('.video-container');
   const audioIndicator = document.getElementById('audio-indicator');
-
-  // Data arrays and state
+  
+  // Elements for questionnaire
+  const questionnaireContainer = document.getElementById('questionnaire-container');
+  const questionnaireQuestion = document.getElementById('questionnaire-question');
+  const questionnaireNextButton = document.getElementById('questionnaire-next-button');
+  const questionnaireAudioIndicator = document.getElementById('questionnaire-audio-indicator');
+  
+  // Data arrays and state for experiment
   let noPauseVideos = [];
   let pausePairs = [];
+  let questionnaireQuestions = []; // loaded from videos.json
   let mode = 'no_pause'; // 'no_pause' or 'pause'
   let currentNoPauseIndex = 0;
   let currentPauseIndex = 0;
   let isAdmin = false;
   let noPauseTimeout;
   
-  // Logging variables
-  let logData = []; // Each entry: { subjectID, phase, event, media, question, reactionTime }
+  // Logging variables for experiment
+  let logData = []; // { subjectID, phase, event, media, question, reactionTime }
   let subjectIDValue = "";
   let pauseImageShownTime = null;
   let currentPausePair = null;
   
-  // Audio recording variables
+  // Audio recording variables (shared for both parts)
   let mediaRecorder = null;
   let audioChunks = [];
   let isRecording = false;
   
-  // For zipping audio files and log CSV
-  let zip = new JSZip();
-
-  // Preload videos and images on page load to reduce buffering
+  // For zipping files for experiment and questionnaire
+  let experimentZip = new JSZip();
+  let questionnaireZip = new JSZip();
+  
+  // Questionnaire logging
+  let currentQuestionnaireIndex = 0;
+  let questionnaireStartTime = null;
+  let questionnaireLogData = []; // { subjectID, question, reactionTime }
+  
+  // Preload videos and images on page load
   async function preloadVideos() {
     try {
       const response = await fetch('videos.json');
       const data = await response.json();
-      // Preload no_pause videos
       data.no_pause_videos.forEach(src => {
         const vid = document.createElement('video');
         vid.src = src;
         vid.preload = "auto";
       });
-      // Preload pause pairs videos and images
       data.pause_pairs.forEach(pair => {
         const vid = document.createElement('video');
         vid.src = pair.video;
@@ -57,24 +68,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   preloadVideos();
-
-  // Fetch video data when starting session
+  
+  // Fetch video data and questionnaire questions from videos.json
   async function fetchVideos() {
     try {
       const response = await fetch('videos.json');
       const data = await response.json();
       noPauseVideos = data.no_pause_videos || [];
       pausePairs = data.pause_pairs || [];
+      questionnaireQuestions = data.questionnaire_questions || [];
     } catch (error) {
       console.error('Error fetching videos:', error);
     }
   }
-
+  
   // Utility: Randomize an array
   function randomizeArray(array) {
     return array.sort(() => Math.random() - 0.5);
   }
-
+  
   async function startSession() {
     const subjectId = subjectInput.value.trim();
     if (!subjectId) {
@@ -83,18 +95,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     subjectIDValue = subjectId;
     isAdmin = (subjectId.toLowerCase() === 'admin');
-
+  
     // Hide session settings and enter fullscreen
     sessionSettings.style.display = 'none';
     videoContainer.classList.add('fullscreen');
     enterFullscreen(videoContainer);
-
+  
     await fetchVideos();
-
+  
     // Randomize no_pause videos order
     noPauseVideos = randomizeArray(noPauseVideos);
-
-    // Log the order of no_pause videos as they will be presented
+  
+    // Log the order of no_pause videos
     noPauseVideos.forEach(videoSrc => {
       logData.push({
         subjectID: subjectIDValue,
@@ -105,28 +117,26 @@ document.addEventListener('DOMContentLoaded', () => {
         reactionTime: ""
       });
     });
-
-    // For admin: always show and enable the Next button.
-    // For non-admin, hide it during the no_pause phase.
+  
+    // For admin: show Next button; for others hide it during no_pause phase
     if (isAdmin) {
       nextButton.style.display = 'inline-block';
       nextButton.disabled = false;
     } else {
       nextButton.style.display = 'none';
     }
-
-    // Request microphone permission (if needed)
+  
+    // Request microphone permission
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
     } catch (err) {
       console.error("Microphone access denied:", err);
     }
-
+  
     // Wait 5 seconds before starting the no_pause phase
     setTimeout(startNoPausePhase, 5000);
   }
-
-  // Fullscreen helper function
+  
   function enterFullscreen(element) {
     if (element.requestFullscreen) {
       element.requestFullscreen();
@@ -138,32 +148,27 @@ document.addEventListener('DOMContentLoaded', () => {
       element.msRequestFullscreen();
     }
   }
-
-  // Start the no_pause phase: play videos with a 3-second delay between them
+  
+  // Experiment: no_pause phase
   function startNoPausePhase() {
     mode = 'no_pause';
     currentNoPauseIndex = 0;
     playNoPauseVideo();
   }
-
+  
   function playNoPauseVideo() {
     if (currentNoPauseIndex >= noPauseVideos.length) {
-      // Finished no_pause videos; start pause phase
       startPausePhase();
       return;
     }
-    // Ensure the video element is visible and hide the pause image/question
     videoPlayer.style.display = 'block';
     pauseImage.style.display = 'none';
     questionText.style.display = 'none';
-
+  
     videoPlayer.src = noPauseVideos[currentNoPauseIndex];
     videoPlayer.load();
     videoPlayer.play();
-
-    // Clear any previous onended callback
-    videoPlayer.onended = null;
-    // When a video ends, set a 3-second delay before moving to the next
+  
     videoPlayer.onended = () => {
       noPauseTimeout = setTimeout(() => {
         currentNoPauseIndex++;
@@ -171,34 +176,34 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 3000);
     };
   }
-
-  // Start pause phase: for each video/image pair, play video then show image with question
+  
+  // Experiment: pause phase with audio recording
   function startPausePhase() {
     mode = 'pause';
     currentPauseIndex = 0;
-    // Always show the Next button during pause phase (for admin and non-admin)
     nextButton.style.display = 'inline-block';
     playPausePair();
   }
-
+  
   function playPausePair() {
     if (currentPauseIndex >= pausePairs.length) {
       alert('Session complete');
       downloadSessionZip();
+      // After experiment zip is downloaded, start questionnaire
+      startQuestionnaire();
       return;
     }
     const currentPair = pausePairs[currentPauseIndex];
     currentPausePair = currentPair;
-    // Ensure the video element is visible and hide the image and question
     videoPlayer.style.display = 'block';
     pauseImage.style.display = 'none';
     questionText.style.display = 'none';
-
+  
     videoPlayer.src = currentPair.video;
     videoPlayer.load();
     videoPlayer.play();
-
-    // Setup event listener: start audio recording when less than 5 seconds remain
+  
+    // Start audio recording when less than 5 seconds remain
     let recordingStarted = false;
     videoPlayer.onloadedmetadata = () => {
       videoPlayer.addEventListener('timeupdate', function recordTrigger() {
@@ -209,29 +214,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     };
-
+  
     videoPlayer.onended = () => {
       showPauseImageAndQuestion(currentPair);
     };
   }
-
+  
   function showPauseImageAndQuestion(pair) {
-    // Hide the video element so its paused frame is not visible
     videoPlayer.style.display = 'none';
-    // Display the image and question
     pauseImage.src = pair.image;
     pauseImage.style.display = 'block';
     questionText.innerText = pair.question || 'Please answer the question regarding the image above.';
     questionText.style.display = 'block';
-    // Record time for reaction time calculation
     pauseImageShownTime = Date.now();
-    // For non-admin users, enable the Next button
     if (!isAdmin) {
       nextButton.disabled = false;
     }
   }
-
-  // Audio recording functions
+  
+  // Shared audio recording functions
   async function startAudioRecording() {
     if (isRecording) return;
     try {
@@ -245,13 +246,12 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       mediaRecorder.start();
       isRecording = true;
-      // Show audio indicator
       audioIndicator.style.display = 'block';
     } catch (err) {
       console.error("Audio recording error:", err);
     }
   }
-
+  
   function stopAudioRecording() {
     return new Promise(resolve => {
       if (!isRecording || !mediaRecorder) {
@@ -267,10 +267,8 @@ document.addEventListener('DOMContentLoaded', () => {
       mediaRecorder.stop();
     });
   }
-
-  // Next button handler:
-  // For pause phase, when Next is clicked, record reaction time, stop audio recording,
-  // and add the audio file to the zip (named with subjectID and image name).
+  
+  // Next button for experiment
   nextButton.addEventListener('click', async () => {
     if (mode === 'pause' && pauseImageShownTime !== null) {
       const reactionTime = Date.now() - pauseImageShownTime;
@@ -285,17 +283,15 @@ document.addEventListener('DOMContentLoaded', () => {
       pauseImageShownTime = null;
     }
     if (mode === 'pause') {
-      // If audio recording is active, stop it and obtain blob
       let audioBlob = null;
       if (isRecording) {
         audioBlob = await stopAudioRecording();
       }
       if (audioBlob) {
-        // Extract image file name (last part of URL)
         const imageParts = currentPausePair.image.split("/");
         const imageFileName = imageParts[imageParts.length - 1];
         const audioFileName = `${subjectIDValue}_${imageFileName}.webm`;
-        zip.file(audioFileName, audioBlob);
+        experimentZip.file(audioFileName, audioBlob);
       }
       if (isAdmin) {
         currentPauseIndex++;
@@ -306,7 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
         playPausePair();
       }
     } else if (mode === 'no_pause') {
-      // Admin skipping in no_pause phase
       if (isAdmin) {
         clearTimeout(noPauseTimeout);
         videoPlayer.onended = null;
@@ -316,8 +311,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
-
-  // At session end, add the log CSV to the zip and download the zip silently
+  
+  // Download experiment zip with log CSV
   function downloadSessionZip() {
     let csvContent = "subjectID,phase,event,media,question,reactionTime\n";
     logData.forEach(row => {
@@ -329,8 +324,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const reactionTime = row.reactionTime;
       csvContent += `${subject},${phase},${event},${media},${question},${reactionTime}\n`;
     });
-    zip.file(`${subjectIDValue}_log.csv`, csvContent);
-    zip.generateAsync({ type: "blob" }).then(content => {
+    experimentZip.file(`${subjectIDValue}_log.csv`, csvContent);
+    experimentZip.generateAsync({ type: "blob" }).then(content => {
       const url = URL.createObjectURL(content);
       const downloadLink = document.createElement("a");
       downloadLink.href = url;
@@ -340,7 +335,105 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.removeChild(downloadLink);
     });
   }
-
+  
+  // -----------------------------
+  // Usability Questionnaire Section
+  // -----------------------------
+  
+  function startQuestionnaire() {
+    // Hide experiment container and show questionnaire container
+    videoContainer.style.display = 'none';
+    questionnaireContainer.style.display = 'block';
+    currentQuestionnaireIndex = 0;
+    questionnaireNextButton.disabled = true;
+    showQuestionnaireQuestion();
+  }
+  
+  function showQuestionnaireQuestion() {
+    if (currentQuestionnaireIndex >= questionnaireQuestions.length) {
+      downloadQuestionnaireZip();
+      return;
+    }
+    const question = questionnaireQuestions[currentQuestionnaireIndex];
+    questionnaireQuestion.innerText = question;
+    startQuestionnaireAudioRecording();
+    questionnaireStartTime = Date.now();
+    questionnaireNextButton.disabled = false;
+  }
+  
+  // Questionnaire audio recording functions (with separate indicator)
+  async function startQuestionnaireAudioRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = event => {
+        if (event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      questionnaireAudioIndicator.style.display = 'block';
+    } catch (err) {
+      console.error("Questionnaire audio recording error:", err);
+    }
+  }
+  
+  function stopQuestionnaireAudioRecording() {
+    return new Promise(resolve => {
+      if (!isRecording || !mediaRecorder) {
+        resolve(null);
+        return;
+      }
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        isRecording = false;
+        questionnaireAudioIndicator.style.display = 'none';
+        resolve(audioBlob);
+      };
+      mediaRecorder.stop();
+    });
+  }
+  
+  questionnaireNextButton.addEventListener('click', async () => {
+    const reactionTime = Date.now() - questionnaireStartTime;
+    questionnaireLogData.push({
+      subjectID: subjectIDValue,
+      question: questionnaireQuestions[currentQuestionnaireIndex],
+      reactionTime: reactionTime
+    });
+    let audioBlob = await stopQuestionnaireAudioRecording();
+    if (audioBlob) {
+      const questionFileName = `Q${currentQuestionnaireIndex + 1}.webm`;
+      questionnaireZip.file(`${subjectIDValue}_${questionFileName}`, audioBlob);
+    }
+    currentQuestionnaireIndex++;
+    questionnaireNextButton.disabled = true;
+    showQuestionnaireQuestion();
+  });
+  
+  function downloadQuestionnaireZip() {
+    let csvContent = "subjectID,question,reactionTime\n";
+    questionnaireLogData.forEach(row => {
+      const subject = row.subjectID;
+      const question = row.question.replace(/,/g, ";");
+      const reactionTime = row.reactionTime;
+      csvContent += `${subject},${question},${reactionTime}\n`;
+    });
+    questionnaireZip.file(`${subjectIDValue}_questionnaire_log.csv`, csvContent);
+    questionnaireZip.generateAsync({ type: "blob" }).then(content => {
+      const url = URL.createObjectURL(content);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      downloadLink.download = `${subjectIDValue}_questionnaire.zip`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      questionnaireContainer.innerHTML = "<h2>Thank you for your feedback!</h2>";
+    });
+  }
+  
   startSessionButton.addEventListener('click', startSession);
 });
 
