@@ -430,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
-      questionnaireContainer.innerHTML = "<h2>Thank you for your feedback!</h2>";
+      questionnaireContainer.innerHTML = "<h2>Thanks for participating!</h2>";
     });
   }
   
