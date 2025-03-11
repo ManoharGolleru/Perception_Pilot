@@ -343,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function startQuestionnaire() {
     // Hide experiment container and show questionnaire container
     videoContainer.style.display = 'none';
-    questionnaireContainer.style.display = 'block';
+    questionnaireContainer.style.display = 'flex';
     currentQuestionnaireIndex = 0;
     questionnaireNextButton.disabled = true;
     showQuestionnaireQuestion();
