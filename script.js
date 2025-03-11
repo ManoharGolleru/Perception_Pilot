@@ -9,13 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const sessionSettings = document.querySelector('.session-settings');
   const videoContainer = document.querySelector('.video-container');
   const audioIndicator = document.getElementById('audio-indicator');
-  
+
   // Elements for questionnaire
   const questionnaireContainer = document.getElementById('questionnaire-container');
   const questionnaireQuestion = document.getElementById('questionnaire-question');
   const questionnaireNextButton = document.getElementById('questionnaire-next-button');
   const questionnaireAudioIndicator = document.getElementById('questionnaire-audio-indicator');
-  
+  const startQuestionnaireOverlay = document.getElementById('start-questionnaire-overlay');
+  const startQuestionnaireBtn = document.getElementById('start-questionnaire-btn');
+
   // Data arrays and state for experiment
   let noPauseVideos = [];
   let pausePairs = [];
@@ -32,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let pauseImageShownTime = null;
   let currentPausePair = null;
   
-  // Audio recording variables (shared for both parts)
+  // Audio recording variables (shared)
   let mediaRecorder = null;
   let audioChunks = [];
   let isRecording = false;
@@ -189,8 +191,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentPauseIndex >= pausePairs.length) {
       alert('Session complete');
       downloadSessionZip();
-      // After experiment zip is downloaded, start questionnaire
-      startQuestionnaire();
+      // Instead of immediately starting the questionnaire, show an overlay button
+      showStartQuestionnaireOverlay();
       return;
     }
     const currentPair = pausePairs[currentPauseIndex];
@@ -340,8 +342,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // Usability Questionnaire Section
   // -----------------------------
   
+  function showStartQuestionnaireOverlay() {
+    // Show overlay with "Start Questionnaire" button
+    startQuestionnaireOverlay.style.display = 'flex';
+  }
+  
+  startQuestionnaireBtn.addEventListener('click', () => {
+    // When the user clicks "Start Questionnaire", hide the overlay, re-enter full screen, and start questionnaire
+    startQuestionnaireOverlay.style.display = 'none';
+    // Re-enter full screen (if needed)
+    enterFullscreen(document.documentElement);
+    startQuestionnaire();
+  });
+  
   function startQuestionnaire() {
-    // Hide experiment container and show questionnaire container
+    // Hide experiment container and show questionnaire container as flex
     videoContainer.style.display = 'none';
     questionnaireContainer.style.display = 'flex';
     currentQuestionnaireIndex = 0;
@@ -430,11 +445,10 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
-      questionnaireContainer.innerHTML = "<h2>Thanks for participating!</h2>";
+      questionnaireContainer.innerHTML = "<h2>Thank you for your feedback!</h2>";
     });
   }
   
   startSessionButton.addEventListener('click', startSession);
 });
-
 
